@@ -43,7 +43,7 @@ export const REGISTERED_COMPONENTS = [
 ];
 
 // TODO: enter your public API key
-const BUILDER_PUBLIC_API_KEY = 'f1a790f8c3204b3b8c5c1795aeac4660'; // ggignore
+const BUILDER_PUBLIC_API_KEY = 'a4f0fe118c4f4bb2a39ffafbbc1e95a9'; // ggignore
 
 export default {
   name: 'App',

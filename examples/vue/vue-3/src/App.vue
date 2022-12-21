@@ -1,5 +1,5 @@
 <script lang="ts">
-import { RenderContent, getContent, isPreviewing } from '@builder.io/sdk-vue/vue3';
+import { RenderContent, getContent, isPreviewing, track } from '@builder.io/sdk-vue/vue3';
 import '@builder.io/sdk-vue/vue3/css';
 
 import HelloWorldComponent from './components/HelloWorld.vue';
@@ -21,7 +21,7 @@ const REGISTERED_COMPONENTS = [
 ];
 
 // TODO: enter your public API key
-const BUILDER_PUBLIC_API_KEY = 'f1a790f8c3204b3b8c5c1795aeac4660'; // ggignore
+const BUILDER_PUBLIC_API_KEY = 'a4f0fe118c4f4bb2a39ffafbbc1e95a9'; // ggignore
 
 export default {
   name: 'DynamicallyRenderBuilderPage',
@@ -48,6 +48,7 @@ export default {
     }).then(res => {
       this.content = res;
       this.canShowContent = this.content || isPreviewing();
+      track({ type: 'conversion', apiKey: 'e37b966ec695434bb21e97442a4a9f46', value: 6, amount: 7 })
     });
   },
 };
