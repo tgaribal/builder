@@ -7,5 +7,5 @@ import '@builder.io/widgets/dist/lib/builder-widgets-async'
 let locale = "en"
 export default function Page() {
 
-  return <BuilderComponent model="symbol" options={{locale: locale}} options={{includeRefs: true}} />
+  return <BuilderComponent model="symbol"  options={{enrich: true, locale}} />
 }
