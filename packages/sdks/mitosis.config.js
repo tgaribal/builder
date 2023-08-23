@@ -57,16 +57,6 @@ const getTargetPath = ({ target }) => {
 };
 
 /**
- * @param {{value: StateValue | undefined, key: string}} args
- */
-const convertPropertyStateValueToGetter = (args) => {
-  const { value, key } = args;
-  if (!value) return;
-  value.code = `get ${key}() {\n return ${value.code} \n}`;
-  value.type = 'getter';
-};
-
-/**
  * @type {MitosisConfig['options']['vue']}
  */
 const vueConfig = {
@@ -154,21 +144,21 @@ ${code.replace(/<(\/?)Text(.*?)>/g, '<$1BaseText$2>')}
   },
 });
 
+const target = process.argv
+  .find((arg) => arg.startsWith('--target='))
+  ?.split('=')[1];
+
+const targets = target
+  ? [target]
+  : ['reactNative', 'vue2', 'rsc', 'vue3', 'solid', 'svelte', 'react', 'qwik'];
+
 /**
  * @type {MitosisConfig}
  */
 module.exports = {
   files: 'src/**',
-  targets: [
-    'reactNative',
-    'vue2',
-    'rsc',
-    'vue3',
-    'solid',
-    'svelte',
-    'react',
-    'qwik',
-  ],
+  exclude: ['src/**/*.test.ts'],
+  targets,
   getTargetPath,
   options: {
     vue2: {
@@ -357,7 +347,8 @@ module.exports = {
         () => ({
           json: {
             pre: (json) => {
-              if (!json.meta?.useMetadata?.reactNative?.useScrollView) return;
+              if (!json.meta?.useMetadata?.plugins?.reactNative?.useScrollView)
+                return;
 
               /**
                * We need the ScrollView for the `BlocksWrapper` and `EnableEditor` components to be able to scroll
@@ -366,7 +357,10 @@ module.exports = {
               traverse(json).forEach(function (item) {
                 if (!isMitosisNode(item)) return;
 
-                if (item.name === 'View') {
+                /**
+                 * Not sure when the div->View transformation happens in Mitosis, so we check both to be safe.
+                 */
+                if (item.name === 'View' || item.name === 'div') {
                   item.name = 'ScrollView';
                 }
               });

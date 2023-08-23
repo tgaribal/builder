@@ -1,5 +1,5 @@
-import { RenderContent, processContentResult } from '@builder.io/sdk-react';
-import { getAllPathnames, getProps } from '@builder.io/sdks-e2e-tests';
+import { RenderContent, _processContentResult } from '@builder.io/sdk-react';
+import { getAllPathnames, getProps } from '@e2e/tests';
 import type {
   GetStaticPropsContext,
   GetStaticPathsResult,
@@ -10,7 +10,7 @@ export async function getStaticProps(x: GetStaticPropsContext<StaticProps>) {
   return {
     props: await getProps({
       pathname: x.params.index ? `/${x.params.index.join('/')}` : '/',
-      processContentResult,
+      _processContentResult,
     }),
   };
 }

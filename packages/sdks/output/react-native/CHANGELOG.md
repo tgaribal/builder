@@ -1,3 +1,37 @@
+### 0.5.8
+
+- Fix: properly serialize messages sent to visual editor.
+
+### 0.5.7
+
+- Fix: Drag'n'Drop in Visual Editor (rendered elements were missing `builder-id` attribute)
+
+### 0.5.6
+
+- Fix: use `ScrollView` instead of `View` for the `RenderContent` wrapper, to allow for scrolling the Builder content.
+- Fix: use `View` instead of HTML tagnames for Block wrappers, preventing crashes when rendering content.
+
+### 0.5.5
+
+- Fix: remove `lru-cache` import and usage.
+
+### 0.5.4
+
+- Fix build issues caused by extraneous `acorn` import.
+- Put Edge runtime evaluator behind dynamic import.
+
+### 0.5.2
+
+- Fix: remove old `evaluate` logic that accidentally stayed in the bundle.
+
+### 0.5.1
+
+- Fix: make `RenderBlocks` properties `context` and `registeredComponents` optional for external use.
+
+### 0.5.0
+
+- Feature: Added support for rudimentary data-bindings in Non-Node.js (edge, serverless, etc.) server runtimes.
+
 ### 0.4.5
 
 - Fix: show dynamic symbols correctly in Preview mode.

@@ -12,21 +12,24 @@ import {
   getVariants,
   getVariantsScriptString,
 } from './helpers.js';
-import ContentComponent from '../content/content.lite';
+import ContentComponent from '../content/content.lite.jsx';
 import { getDefaultCanTrack } from '../../helpers/canTrack.js';
-import InlinedStyles from '../inlined-styles.lite';
+import InlinedStyles from '../inlined-styles.lite.jsx';
 import { handleABTestingSync } from '../../helpers/ab-tests.js';
-import InlinedScript from '../inlined-script.lite';
+import InlinedScript from '../inlined-script.lite.jsx';
 import { TARGET } from '../../constants/target.js';
-import type { ContentVariantsProps } from './content-variants.types.js';
+import type { ContentVariantsPrps } from './content-variants.types.js';
 
 useMetadata({
   rsc: {
     componentType: 'server',
   },
+  qwik: {
+    setUseStoreFirst: true,
+  },
 });
 
-type VariantsProviderProps = ContentVariantsProps & {
+type VariantsProviderProps = ContentVariantsPrps & {
   /**
    * For internal use only. Do not provide this prop.
    */
@@ -67,6 +70,14 @@ export default function ContentVariants(props: VariantsProviderProps) {
       return getVariants(props.content)
         .map((value) => `.variant-${value.testVariationId} { display: none; } `)
         .join('');
+    },
+    get defaultContent() {
+      return state.shouldRenderVariants
+        ? { ...props.content, testVariationId: props.content?.id }
+        : handleABTestingSync({
+            item: props.content,
+            canTrack: getDefaultCanTrack(props.canTrack),
+          });
     },
   });
 
@@ -115,14 +126,7 @@ export default function ContentVariants(props: VariantsProviderProps) {
           },
           default: {},
         })}
-        content={
-          state.shouldRenderVariants
-            ? props.content
-            : handleABTestingSync({
-                item: props.content,
-                canTrack: getDefaultCanTrack(props.canTrack),
-              })
-        }
+        content={state.defaultContent}
         classNameProp={`variant-${props.content?.id}`}
         showContent
         model={props.model}

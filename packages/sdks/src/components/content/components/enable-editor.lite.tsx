@@ -1,11 +1,11 @@
 import type { BuilderContextInterface } from '../../../context/types.js';
-import { evaluate } from '../../../functions/evaluate.js';
+import { evaluate } from '../../../functions/evaluate/index.js';
 import { fetch } from '../../../functions/get-fetch.js';
 import { isBrowser } from '../../../functions/is-browser.js';
 import { isEditing } from '../../../functions/is-editing.js';
 import { createRegisterComponentMessage } from '../../../functions/register-component.js';
 import { _track } from '../../../functions/track/index.js';
-import builderContext from '../../../context/builder.context.lite';
+import builderContext from '../../../context/builder.context.lite.js';
 import type { Signal } from '@builder.io/mitosis';
 import {
   Show,
@@ -30,10 +30,11 @@ import type {
 } from '../content.types.js';
 import { logger } from '../../../helpers/logger.js';
 import type { ComponentInfo } from '../../../types/components.js';
-import { getContent } from '../../../functions/get-content/index.js';
+import { fetchOneEntry } from '../../../functions/get-content/index.js';
 import { isPreviewing } from '../../../functions/is-previewing.js';
 import type { BuilderContent } from '../../../types/builder-content.js';
 import { postPreviewContent } from '../../../helpers/preview-lru-cache/set.js';
+import { fastClone } from '../../../functions/fast-clone.js';
 
 useMetadata({
   qwik: {
@@ -215,7 +216,7 @@ export default function EnableEditor(props: BuilderEditorProps) {
             'builder:component:stateChange',
             {
               detail: {
-                state: props.builderContextSignal.value.rootState,
+                state: fastClone(props.builderContextSignal.value.rootState),
                 ref: {
                   name: props.model,
                 },
@@ -330,7 +331,7 @@ export default function EnableEditor(props: BuilderEditorProps) {
               previewApiKey === props.apiKey &&
               (!props.content || searchParamPreviewId === props.content.id)
             ) {
-              getContent({
+              fetchOneEntry({
                 model: props.model,
                 apiKey: props.apiKey,
                 apiVersion: props.builderContextSignal.value.apiVersion,
