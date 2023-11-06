@@ -22,27 +22,10 @@
 
 <script>
 import { RenderContent, getContent, isPreviewing } from '@builder.io/sdk-vue/vue2';
-import { Builder } from '@builder.io/sdk';
 import '@builder.io/sdk-vue/vue2/css';
 
 // Register your Builder components
 import HelloWorldComponent from '../components/HelloWorld.vue';
-import LargeBodyText from '../components/LargeBodyText.vue';
-
-Builder.register('insertMenu', {
-  name: 'Typography Components',
-  items: [
-    {name: 'LargeBodyText'},
-    {name: 'LargeBodyText'},
-    {name: 'LargeBodyText'},
-    {name: 'LargeBodyText'},
-    {name: 'LargeBodyText'},
-    {name: 'LargeBodyText'},
-    {name: 'LargeBodyText'},
-    {name: 'LargeBodyText'},
-    {name: 'LargeBodyText'}
-  ]
-})
 
 export const REGISTERED_COMPONENTS = [
   {
@@ -57,11 +40,10 @@ export const REGISTERED_COMPONENTS = [
       },
     ],
   },
-  LargeBodyText
 ];
 
 // TODO: enter your public API key
-const BUILDER_PUBLIC_API_KEY = '271bdcf584e24ca896dede7a91dfb1cb'; // ggignore
+const BUILDER_PUBLIC_API_KEY = 'f1a790f8c3204b3b8c5c1795aeac4660'; // ggignore
 
 export default {
   name: 'App',
@@ -86,7 +68,6 @@ export default {
         urlPath: window.location.pathname,
       },
     }).then(res => {
-      console.log("hello", res)
       this.content = res;
       this.canShowContent = this.content || isPreviewing();
     });

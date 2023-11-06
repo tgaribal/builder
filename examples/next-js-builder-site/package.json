@@ -16,8 +16,7 @@
   },
   "dependencies": {
     "@babel/core": "7.12.10",
-    "@builder.io/dev-tools": "0.1.24",
-    "@builder.io/react": "3.0.14",
+    "@builder.io/react": "2.0.4",
     "@builder.io/sdk": "1.1.29",
     "@builder.io/widgets": "1.2.24",
     "@emotion/babel-preset-css-prop": "11.0.0",
@@ -46,7 +45,7 @@
     "use-typed-event-listener": "3.0.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "17.7.1",
+    "@commitlint/cli": "11.0.0",
     "@commitlint/config-conventional": "11.0.0",
     "@emotion/serialize": "1.0.0",
     "@types/lodash": "4.14.168",

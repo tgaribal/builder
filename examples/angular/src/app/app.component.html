@@ -1,12 +1,4 @@
 <a routerLink="/a">A</a>
 <a routerLink="/b">B</a>
-
-    <builder-component
-    *ngFor="let item of items"
-    model="symbol"
-    [data]="item"
-    ></builder-component>
-    
-    <router-outlet></router-outlet>
- 
-
+<builder-component [options]="options" [data]="data" model="page"></builder-component>
+<router-outlet></router-outlet>

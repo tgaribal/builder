@@ -1,4 +1,4 @@
-import { BuilderComponent, builder, useIsPreviewing } from '@builder.io/react';
+import { BuilderComponent, builder } from '@builder.io/react';
 import type { BuilderContent } from '@builder.io/sdk';
 import { Builder } from '@builder.io/sdk';
 import { Links, Meta, Scripts, useCatch, useLoaderData } from '@remix-run/react';
@@ -16,9 +16,9 @@ export const loader: LoaderFunction = async ({ params }) => {
     })
     .toPromise();
 
-  
-  console.log('LOADER PAGE: ', page)
-  if (!page) {
+  const isPreviewing = Builder.isEditing || Builder.isPreviewing;
+
+  if (!page && !isPreviewing) {
     throw new Response('Page Not Found', {
       status: 404,
       statusText:
@@ -31,11 +31,10 @@ export const loader: LoaderFunction = async ({ params }) => {
 
 export function CatchBoundary() {
   const caught = useCatch();
-  const errorMessage = `Error: ${caught.status}`
   return (
     <html>
       <head>
-        <title>{errorMessage}</title>
+        <title>Error: {caught.status}</title>
         <Meta />
         <Links />
       </head>
@@ -57,12 +56,6 @@ export function CatchBoundary() {
 
 export default function Page() {
   const page: BuilderContent = useLoaderData<BuilderContent>();
-  console.log('PAGE: ', page)
-  const isPreviewingInBuilder = useIsPreviewing();
-
-  if (!page && !isPreviewingInBuilder) {
-    return (<div> BAD PAGE </div>);
-  }
 
   return (
     <div>
