@@ -7,11 +7,12 @@ import type {
   PlaywrightTestArgs,
   PlaywrightWorkerArgs,
 } from '@playwright/test';
-import type { PackageName, Sdk } from './sdk';
+import type { PackageName, Sdk } from './sdk.js';
 import { sdk } from './sdk.js';
 
 type TestOptions = {
   packageName: PackageName | 'DEFAULT';
+  basePort: number;
 };
 
 // https://github.com/microsoft/playwright/issues/14854#issuecomment-1155667859
@@ -36,8 +37,21 @@ async function screenshotOnFailure(
 export const test = base.extend<TestOptions>({
   // this is provided by `playwright.config.ts`
   packageName: ['DEFAULT', { option: true }],
+  basePort: [0, { option: true }],
 });
 test.afterEach(screenshotOnFailure);
+
+export const isSSRFramework = (packageName: PackageName | 'DEFAULT') => {
+  // Easier to list non-ssr than other way around.
+  const isNonSSR =
+    packageName === 'solid' ||
+    packageName === 'react' ||
+    packageName === 'vue2' ||
+    packageName === 'svelte' ||
+    packageName === 'react-native' ||
+    packageName === 'gen1-react';
+  return !isNonSSR;
+};
 
 export const findTextInPage = async ({ page, text }: { page: Page; text: string }) => {
   await page.locator(`text=${text}`).waitFor();
@@ -127,5 +141,3 @@ export const getBuilderSessionIdCookie = async ({ context }: { context: BrowserC
   const builderSessionCookie = cookies.find(cookie => cookie.name === 'builderSessionId');
   return builderSessionCookie;
 };
-
-export const BUILDER_TEXT_SELECTOR = isRNSDK ? '[data-builder-text]' : '.builder-text';

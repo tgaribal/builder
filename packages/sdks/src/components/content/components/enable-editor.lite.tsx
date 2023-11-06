@@ -22,19 +22,19 @@ import {
   registerInsertMenu,
   setupBrowserForEditing,
 } from '../../../scripts/init-editing.js';
-import { checkIsDefined } from '../../../helpers/nullable.js';
 import { getInteractionPropertiesForEvent } from '../../../functions/track/interaction.js';
 import type {
   ContentProps,
   BuilderComponentStateChange,
 } from '../content.types.js';
-import { logger } from '../../../helpers/logger.js';
 import type { ComponentInfo } from '../../../types/components.js';
 import { fetchOneEntry } from '../../../functions/get-content/index.js';
 import { isPreviewing } from '../../../functions/is-previewing.js';
 import type { BuilderContent } from '../../../types/builder-content.js';
 import { postPreviewContent } from '../../../helpers/preview-lru-cache/set.js';
 import { fastClone } from '../../../functions/fast-clone.js';
+import { logger } from '../../../helpers/logger.js';
+import { getDefaultCanTrack } from '../../../helpers/canTrack.js';
 
 useMetadata({
   qwik: {
@@ -59,7 +59,6 @@ type BuilderEditorProps = Omit<
 export default function EnableEditor(props: BuilderEditorProps) {
   const elementRef = useRef<HTMLDivElement>();
   const state = useStore({
-    canTrackToUse: checkIsDefined(props.canTrack) ? props.canTrack : true,
     forceReRenderCount: 0,
     mergeNewContent(newContent: BuilderContent) {
       const newContentValue = {
@@ -98,6 +97,7 @@ export default function EnableEditor(props: BuilderEditorProps) {
     shouldSendResetCookie: false,
     processMessage(event: MessageEvent): void {
       const { data } = event;
+
       if (data) {
         switch (data.type) {
           case 'builder.configureSdk': {
@@ -158,7 +158,7 @@ export default function EnableEditor(props: BuilderEditorProps) {
         const contentId = props.builderContextSignal.value.content?.id;
         _track({
           type: 'click',
-          canTrack: state.canTrackToUse,
+          canTrack: getDefaultCanTrack(props.canTrack),
           contentId,
           apiKey: props.apiKey,
           variationId: variationId !== contentId ? variationId : undefined,
@@ -297,7 +297,7 @@ export default function EnableEditor(props: BuilderEditorProps) {
         const contentId = props.builderContextSignal.value.content?.id;
         _track({
           type: 'impression',
-          canTrack: state.canTrackToUse,
+          canTrack: getDefaultCanTrack(props.canTrack),
           contentId,
           apiKey: props.apiKey,
           variationId: variationId !== contentId ? variationId : undefined,
@@ -366,7 +366,6 @@ export default function EnableEditor(props: BuilderEditorProps) {
     state.emitStateUpdate();
   }, [props.builderContextSignal.value.rootState]);
 
-  // TODO: `else` message for when there is no content passed, or maybe a console.log
   return (
     <Show when={props.builderContextSignal.value.content}>
       <div
