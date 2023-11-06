@@ -4,10 +4,10 @@ export const TestCustomComponent = (props:any) => {
   
   return (
     <>
-    <div {...props}>
-      <h2>{props.inputVal}</h2>
+    <div >
+      <h2>{props?.inputVal}</h2>
       <>
-        {props.list.map((item: any, index: any) => {
+        {props?.list?.map((item: any, index: any) => {
           return <div key={item.number+index}>{item.reviewText}</div>
         })}
       </>
@@ -18,13 +18,15 @@ export const TestCustomComponent = (props:any) => {
  };
 
 
+// const enum = ["CA", "NY", "IL"];
 
 Builder.registerComponent(TestCustomComponent, {
-  name: 'Test Custom Comp & 👍 ',
+  name: 'Test Custom Comp hello',
+  // tag: 'something else here',
   inputs: [
     {
       name: 'inputVal',
-      type: 'text',
+      type: 'html',
       defaultValue: 'this is some text',
       localized: false,
       // regex: {
@@ -35,14 +37,26 @@ Builder.registerComponent(TestCustomComponent, {
       //   message: "You must use a relative url starting with '/...' "
       // },
       onChange: (options: any) => {
-        console.log('KAHSDFKHASDKFHAKSDHFALKSHD: ', options)
+        const val = options.get('inputVal');
+
+        console.log('KAHSDFKHASDKFHAKSDHFALKSHD: ', options, val)
 
       }
     },
     {
+      name: 'category',
+      type: 'text',
+      enum: ['movies', 'tv'],
+    },
+    {
+      name: 'number',
+      type: 'text',
+      defaultValue: "10",
+      enum: ['1', '2', '3']
+    },
+    {
         name: "state",
         type: "text",
-        enum: ["CA", "NY", "IL"],
         defaultValue: "CA",
         required: true,
         onChange: (options: any) => {
@@ -66,12 +80,19 @@ Builder.registerComponent(TestCustomComponent, {
        defaultValue: "San Francisco",
     },
     {
+      name: 'odel',
+      type: 'model',
+      model: 'banner'
+    },
+    {
       name: 'list',
       type: 'list',
-      defaultValue: [{ 
-        defaultText:  'default text of this thing'
+      defaultValue: [{
+        reviewText: "\"You guys are the best\"",
+        newTab: true,
+        number: "1",
+        reviewAuthor: "Jane Smith"
       }],
-      copyOnAdd: false,
       subFields: [
         {
           name: 'reviewText',
@@ -79,13 +100,15 @@ Builder.registerComponent(TestCustomComponent, {
           defaultValue: '"You guys are the best"'
         },
         {
+          name: "newTab",
+          type: "boolean",
+          defaultValue: true
+        },
+        {
           name: 'number',
           type: 'string',
           required: true,
           defaultValue: '1',
-          // onChange: (options: any) => {
-          //   console.log('KAHSDFKHASDKFHAKSDHFALKSHD: ')
-          // },
           regex: {
             // pattern to test, like "^\/[a-z]$" 
             pattern: "^[1-9]?[0-9]{1}$|^100$",
@@ -102,13 +125,16 @@ Builder.registerComponent(TestCustomComponent, {
         },
       ],
       onChange: (options: any) => {
-        console.log('OPTIONS NUMBER: ', options.get('number'))
-        options.get('list').forEach((item: any) => console.log(item._data.get('number')))
-        console.log('OPTIONS subfields: ', options.get('list'))
+        console.log('hello')
 
-        if (options.get('list').length > 4) {
+        // const val = [{reviewText: "\"You guys are the best\"",newTab: true,number: "1",reviewAuthor: "Jane Smith"}]
+        // const newVal = new Map(val.map(obj => {...obj}));
+        if (options.get('list').length > 2) {
           console.log('in on change isError');
-          options.set('list', options.get('list').slice(0, 4))
+
+          options.set('list', [{reviewText: "\"You guys are the best\"",newTab: true,number: "1",reviewAuthor: "Jane Smith"}]);
+          console.log('hello after set')
+          // console.log('this is after set: ', options.get('list'))
         }
       }
     }

@@ -6,7 +6,7 @@ import Head from 'next/head'
 import '@builder.io/widgets/dist/lib/builder-widgets-async'
 
 // builder.init(builderConfig.apiKey)
-builder.init('e331e76e501d4e75b90664fad3b86b17');
+// builder.init('e331e76e501d4e75b90664fad3b86b17');
 
 // builder.apiVersion = 'v1';
 export async function getStaticProps({

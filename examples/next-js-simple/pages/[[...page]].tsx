@@ -1,83 +1,78 @@
 import type { GetStaticPropsContext, InferGetStaticPropsType } from 'next'
 import { useRouter } from 'next/router'
 import { BuilderComponent, builder, useIsPreviewing, withChildren, BuilderContent, Builder, Image } from '@builder.io/react'
+import { getAsyncProps } from '@builder.io/utils';
 import DefaultErrorPage from 'next/error'
 import Head from 'next/head'
 import builderConfig from '@config/builder'
 // loading widgets dynamically to reduce bundle size, will only be included in bundle when is used in the content
 import '@builder.io/widgets/dist/lib/builder-widgets-async'
 import '@components/hero/Hero'
-// import '@components/abTestComp/AbTestComp'
+import "@components/KnowdeButton/KnowdeButton"
+import "@components/Slider/Slider"
+import "@components/AsyncComp/AsycnComp"
 
-// const MyImage = (props: any) => {
-//   return <Image {...props} /> 
-// }
-//ignore
-// console.log('COLUMNS: ', Image?.input)
-// Builder.registerComponent(MyImage, {
-//   name: 'Image',
-//   friendlyName: 'Mobile Only Button',
-  
-//   // Signify that this is an override
-//   override: true,
 
-//   inputs: [
-//     {
-//       name:'test',
-//       type: 'text'
-//     },
-//     // ...Image?.inputs
-//   ]
-// });
-
-const locale ='en';
-
+const retailerData = { name: 'retailer one', token: 100} //getRetailerToken()
 // builder.apiVersion = 'v1';
+
+Builder.registerComponent(
+  (props: any) => {
+    if (!props.cloudinaryOptions) {
+      return 'Choose an Image'
+    }
+    return (
+      <img
+        src={props.cloudinaryOptions.url}
+        width={props.cloudinaryOptions.width}
+        height={props.cloudinaryOptions.height}
+      />
+    )
+  },
+  {
+    name: 'CloudinaryImage',
+    image:
+      'https://res.cloudinary.com/cloudinary-marketing/image/upload/v1599098500/creative_source/Logo/Cloud%20Glyph/cloudinary_cloud_glyph_blue_png.png',
+    inputs: [{ 
+      name: 'cloudinaryOptions', 
+      type: 'cloudinaryImageEditor' 
+    }],
+  }
+)
 export async function getStaticProps({
   params,
 }: GetStaticPropsContext<{ page: string[] }>) {
+  console.log("ALL PARAMS: ", params?.page)
+  const locale = 'en';
 
   const page =
     (await builder
       .get("page", {
       userAttributes: {
-          urlPath: '/' + (params?.page?.join('/') || '')
+          urlPath: '/' + (params?.page?.join('/') || ''),
+          // locale
         },
-        enrich: true,
-        locale
+      // locale,
+      enrich: true
       }).toPromise()) || null
+      // console.log('PAGE SERVER: ', page)
+    // const authors = 
+    // console.log('AUTHORS: ', authors);
+    // await getAsyncProps(page, {
+    //   async AsyncComp(props) {
+    //     let user = await builder.getAll('author', {limit: 3, fields: 'data.name'}) || null;
+    //     return {
+    //       user 
+    //     };
+    //   },
+    // });
 
-      // const footer =
-      // (await builder
-      //   .get('footer')
-      //   .toPromise()) || null
-
-    const header =
-      (await builder
-        .get('banner', {
-          userAttributes: {
-            urlPath: '/' + (params?.page?.join('/') || '')
-          },  
-          query: {
-            'data.type': 'header'
-          }
-        })
-        .toPromise()) || null
-
-      const footer =
-      (await builder
-        .get('banner', {
-          query: {
-            'data.type': 'footer'
-          }
-        })
-        .toPromise()) || null
-
+    console.log('SERVER: ', page)
+    // console.log('something: ', something)
   return {
     props: {
       page,
-      header,
-      footer
+      locale
     },
     // Next.js will attempt to re-generate the page:
     // - When a request comes in
@@ -87,86 +82,84 @@ export async function getStaticProps({
 }
 
 export async function getStaticPaths() {
-  const limit = 100;
-  let offset = 0;
   const pages = await builder.getAll('page', {
     options: { noTargeting: true },
-    fields: 'data.url',
+    fields: 'data.url,id',
+    limit: 100
   })
-
-  // while(pages.length === (limit + offset)) {
-  //   offset += pages.length;
-  //   pages.push(...(await builder.getAll('page', {
-  //     options: { noTargeting: true },
-  //     fields: 'data.url',
-  //     offset, 
-  //     limit
-  //   })))
-  // }
-  // console.log('pages: ', pages)
+  let paths = pages.map((page) => {
+    // console.log('URL: ', page?.data?.url, page)
+    // if (!page?.data?.url) {
+    //   console.log('ID: ', page?.id)
+    //   return '/'
+    // }
+    let url = `${page?.data?.url}`;
+    return url;
+  })
+  // console.log('PATHS: ', paths)
 
   return {
-    paths: pages.map((page) => `${page.data?.url}`),
+    paths,
     fallback: true,
   }
 }
 
 export default function Page({
   page,
-  footer,
-  header
+  locale
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter()
   const isPreviewingInBuilder = useIsPreviewing()
   const show404 = !page && !isPreviewingInBuilder
-  const model = builder.editingModel;
 
   if (router.isFallback) {
     return <h1>Loading...</h1>
   }
-  console.log('client page: ', page)
+    // console.log('client page: ', page)
   const handleClick = () => {
     console.log('hello')
     builder.track('my-custom-event');
     builder.trackConversion(99);
     builder.track('some-other-event', { meta: { productId: 'abc123', somethingElse: true }})
   }
-
+  //   const updateFooter = async(url = 'https://builder.io/api/v1/write/footer/badee73ef0534a8b99c64aa494b54f33') => {
+  //       const data = {
+  //         data: {
+  //           boolean: true
+  //         }
+  //       };
+  //       const response = await fetch(url, {
+  //           method: 'PATCH',
+  //           headers: {
+  //               Authorization: 'Bearer bpk-33b7b99357794f8ba2b843c61f2cf45e'
+  //           },
+  //           body: JSON.stringify(data)
+  //       }); 
+  //       console.log('RESPONSE: ', response);
+  //       return response.json();
+  //   }
+  //   const writeContent = (e: any) => {
+  //     console.log('click', e)
+  //     updateFooter();
+  // }  
+console.log('PAGE', page)
   return (
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
         {!page && <meta name="robots" content="noindex" />}
+        <title>{page?.data?.title}</title>
+        {page?.data?.scripts}
       </Head>
       {show404 ? (
         <DefaultErrorPage statusCode={404} />
       ) : (
-        <> 
-          <BuilderComponent model="banner" content={header} /> 
-          <BuilderComponent 
-            model="page" 
-            locale={locale} 
-            content={page}
-            context={{handleClick}} 
-            data={{ loggedIn: false, values: {"this-and-that": "whatever", "osmehting!": "this other"}, username: 'Justin', hideAnyButton: true, locale}} />
-          <BuilderComponent model="banner" content={footer} /> 
-          {/* <BuilderComponent model="footer"></BuilderComponent> */}
-          {/* <BuilderContent model="footer" content={footer}> 
-            {(data, loading, content) => {
-                return (
-                <>
-                     {data?.footerLinks?.map((link:any) => {
-                       return link?.footerLink?.map((innerLink:any) => {
-                         return <a key={innerLink.id} href={innerLink.linkUrl}>{innerLink.linkName}</a>
-                       })
-                     })
-                   }
-                </>
-                )
-            }}
-          </BuilderContent> */}
-        </>
+            <BuilderComponent 
+              model="page" 
+              locale={locale} 
+              content={page}
+              data={{retailerData}} />
+      
       )}
     </>
   )

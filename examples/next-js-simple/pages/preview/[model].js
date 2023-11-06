@@ -2,10 +2,8 @@ import { BuilderComponent, builder } from '@builder.io/react';
 import builderConfig from '@config/builder';
 import '@builder.io/widgets/dist/lib/builder-widgets-async'
 
-// Replace with your Public API Key.
-// builder.init('271bdcf584e24ca896dede7a91dfb1cb')
-let locale = "en"
-export default function Page() {
+export default function Symbol() {
 
-  return <BuilderComponent model="symbol"  options={{enrich: true, locale}} />
+  return <BuilderComponent model="symbol" options={{includeRefs: true}} />
+
 }

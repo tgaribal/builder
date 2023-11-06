@@ -58,6 +58,11 @@ Builder.registerComponent(AbTestComp, {
       name: 'author',
       type: 'reference',
       model: 'author'
+    },
+    {
+      name: 'odel',
+      type: 'model',
+      model: 'page'
     }
   ]
 });

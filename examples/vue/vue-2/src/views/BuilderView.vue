@@ -86,6 +86,7 @@ export default {
         urlPath: window.location.pathname,
       },
     }).then(res => {
+      console.log("hello", res)
       this.content = res;
       this.canShowContent = this.content || isPreviewing();
     });

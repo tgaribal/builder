@@ -5,16 +5,13 @@ import '@builder.io/sdk-vue/vue3/css';
 
 import HelloWorldComponent from './components/HelloWorld.vue';
 import LargeBodyText from './components/LargeBodyText.vue';
+import WrapFragment, { WrapFragmentRegistration } from './components/WrapFragment.vue';
 
 Builder.register('insertMenu', {
   name: 'Typography Components',
   items: [
     {name: 'Hello World'},
-    {name: 'LargeBodyText'},
-    {name: 'LargeBodyText'},
-    {name: 'LargeBodyText'},
-    {name: 'LargeBodyText'},
-    {name: 'LargeBodyText'},
+    {name: 'WrapFragment'},
     {name: 'LargeBodyText'},
     {name: 'LargeBodyText'},
     {name: 'LargeBodyText'}
@@ -35,6 +32,7 @@ const REGISTERED_COMPONENTS = [
       },
     ],
   },
+  WrapFragmentRegistration,
   {
     component: LargeBodyText,
     name: 'Large Body Text',
@@ -60,21 +58,28 @@ const REGISTERED_COMPONENTS = [
 
 // TODO: enter your public API key
 const BUILDER_PUBLIC_API_KEY = '271bdcf584e24ca896dede7a91dfb1cb'; // ggignore
+// const BUILDER_PUBLIC_API_KEY = 'effc3d0f04d349b0a5da8c78825f92a5'; // ggignore
+
+const user = {name: 'tim'}
 
 export default {
   name: 'DynamicallyRenderBuilderPage',
   components: {
-    'builder-render-content': RenderContent,
+    'builder-render-content': RenderContent
   },
   data: () => ({
     canShowContent: false,
     content: null,
     apiKey: BUILDER_PUBLIC_API_KEY,
+    user: user
   }),
   methods: {
     getRegisteredComponents() {
       return REGISTERED_COMPONENTS;
     },
+    func() {
+      console.log('hi!')
+    }
   },
   mounted() {
     getContent({
@@ -82,8 +87,10 @@ export default {
       apiKey: BUILDER_PUBLIC_API_KEY,
       userAttributes: {
         urlPath: window.location.pathname,
+        loggedIn: true
       },
     }).then(res => {
+      console.log('hello', res)
       this.content = res;
       this.canShowContent = this.content || isPreviewing();
     });
@@ -92,24 +99,21 @@ export default {
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-  </header>
+<div>
   <div>
     <div>Hello world from your Vue 3 project. Below is Builder Content:</div>
     <div v-if="canShowContent">
-      <div>
-        page title:
-        {{ (content && content.data && content.data.title) || 'Unpublished' }}
-      </div>
       <builder-render-content
         model="page"
         :content="content"
         :api-key="apiKey"
         :customComponents="getRegisteredComponents()"
+        :data="user"
+        :context="func"
       />
     </div>
     <div v-else>Content not Found</div>
+  </div>
   </div>
 </template>
 

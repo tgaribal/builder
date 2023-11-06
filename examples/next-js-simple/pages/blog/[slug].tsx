@@ -9,30 +9,29 @@ import '@builder.io/widgets/dist/lib/builder-widgets-async'
 import * as fs from 'fs';
 
 // builder.init(builderConfig.apiKey)
-// builder.init('271bdcf584e24ca896dede7a91dfb1cb');
+// builder.init('dfd7048cf175429cb138b8ae9a1d66e9');
 
 export async function getStaticProps({
   params,
 }: GetStaticPropsContext<{ slug: string[] }>) {
-    console.log('hello: ', params?.slug)
+
   const articleData =
     (await builder
       .get('article', {
         query: {
             'data.slug': params?.slug
-        }
+        },
+        enrich: true
       }).toPromise()) || null
 
-      
       const articleTemplate = 
       (await builder
         .get('blog-template', {
-            userAttributes: {
-                urlPath: '/blog/' + (params?.slug),
-                category: articleData?.data.category
-            }
-        })
-        .toPromise()) || null
+            // query: {
+            //   'id': articleData?.data?.contentTemplate?.id
+            // },
+            enrich: true
+        }).toPromise()) || null
         
     console.log('hello article: ',articleData)
     console.log('hello template: ', articleTemplate);
@@ -50,14 +49,14 @@ export async function getStaticProps({
 }
 
 export async function getStaticPaths() {
-  const articles = await builder.getAll('articles', {
+  const articles = await builder.getAll('blog', {
     options: { noTargeting: true },
     omit: 'data.blocks',
   })
 
   return {
     paths: articles.map((article) => `/blog/${article.data?.slug}`),
-    fallback: true,
+    fallback: true
   }
 }
 
@@ -68,7 +67,7 @@ export default function Page({
   const router = useRouter()
   const isPreviewingInBuilder = useIsPreviewing()
   const show404 = !articleData && !isPreviewingInBuilder
-  console.log('hello article: ',articleData)
+  console.log('hello article: ',articleData?.data)
   console.log('hello template: ', articleTemplate);
   if (router.isFallback) {
     return <h1>Loading...</h1>
@@ -84,8 +83,7 @@ export default function Page({
         <DefaultErrorPage statusCode={404} />
       ) : (
         <>
-          <BuilderComponent model="ad-block" />
-          <BuilderComponent model="blog-template" content={articleTemplate} data={{article: articleData?.data}}/>
+          <BuilderComponent model="blog-template" content={articleTemplate} options={{enrich: true}} data={{article: articleData?.data}}/>
         </>
       )}
     </>
