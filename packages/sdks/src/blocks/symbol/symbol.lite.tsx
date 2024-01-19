@@ -1,5 +1,3 @@
-import ContentVariants from '../../components/content-variants/content-variants.lite.jsx';
-import type { BuilderContent } from '../../types/builder-content.js';
 import {
   onMount,
   onUpdate,
@@ -7,6 +5,8 @@ import {
   useStore,
   useTarget,
 } from '@builder.io/mitosis';
+import ContentVariants from '../../components/content-variants/content-variants.lite.jsx';
+import type { BuilderContent } from '../../types/builder-content.js';
 import type {
   BuilderComponentsProp,
   PropsWithBuilderData,
@@ -15,10 +15,10 @@ import { filterAttrs } from '../helpers.js';
 /**
  * This import is used by the Svelte SDK. Do not remove.
  */
-// eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
+
+import type { Nullable } from '../../types/typescript.js';
 import { setAttrs } from '../helpers.js';
 import { fetchSymbolContent } from './symbol.helpers.js';
-import type { Nullable } from '../../types/typescript.js';
 
 useMetadata({
   rsc: {
@@ -48,8 +48,7 @@ export default function Symbol(props: PropsWithBuilderData<SymbolProps>) {
     get className() {
       return [
         ...useTarget({
-          vue2: Object.keys(props.attributes.class),
-          vue3: Object.keys(props.attributes.class),
+          vue: Object.keys(props.attributes.class),
           react: [props.attributes.className],
           rsc: [props.attributes.className],
           reactNative: [],
@@ -93,20 +92,25 @@ export default function Symbol(props: PropsWithBuilderData<SymbolProps>) {
   }, [props.symbol]);
 
   onMount(() => {
-    state.setContent();
+    useTarget({
+      react: () => {},
+      reactNative: () => {},
+
+      default: () => {
+        state.setContent();
+      },
+    });
   });
 
   return (
     <div
       {...useTarget({
-        vue2: filterAttrs(props.attributes, 'v-on:', false),
-        vue3: filterAttrs(props.attributes, 'v-on:', false),
+        vue: filterAttrs(props.attributes, 'v-on:', false),
         svelte: filterAttrs(props.attributes, 'on:', false),
         default: {},
       })}
       {...useTarget({
-        vue2: filterAttrs(props.attributes, 'v-on:', true),
-        vue3: filterAttrs(props.attributes, 'v-on:', true),
+        vue: filterAttrs(props.attributes, 'v-on:', true),
         svelte: filterAttrs(props.attributes, 'on:', true),
         default: props.attributes,
       })}

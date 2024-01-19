@@ -1,20 +1,20 @@
 import { expect } from '@playwright/test';
 import {
-  test,
-  excludeReactNative,
-  isRNSDK,
+  excludeTestFor,
   expectStylesForElement,
   findTextInPage,
-  excludeTestFor,
+  getClassSelector,
+  isRNSDK,
+  test,
 } from './helpers.js';
 
-test.describe('Styles', () => {
-  excludeReactNative('data-binding-styles', async ({ page, packageName }) => {
-    // TODO: FIX broken test for NextJS
-    if (packageName === 'gen1-next') {
-      return;
-    }
+const FIRST_BLOCK_SELECTOR = isRNSDK
+  ? // ScrollView adds an extra div wrapper
+    `${getClassSelector('builder-blocks')} > div > div`
+  : `${getClassSelector('builder-blocks')} > div`;
 
+test.describe('Styles', () => {
+  test('data-binding-styles', async ({ page }) => {
     await page.goto('/data-binding-styles');
     await expect(page.locator(`text="This text should be red..."`)).toHaveCSS(
       'color',
@@ -23,12 +23,7 @@ test.describe('Styles', () => {
   });
 
   test.describe('Style Bindings', () => {
-    test('Content', async ({ page, packageName }) => {
-      // TODO: FIX broken test for NextJS
-      if (packageName === 'gen1-next') {
-        return;
-      }
-
+    test('Content', async ({ page }) => {
       await page.goto('/content-bindings');
 
       const expected = {
@@ -38,25 +33,17 @@ test.describe('Styles', () => {
         'border-bottom-right-radius': '30px',
       };
 
-      const selector = isRNSDK
-        ? '[data-class*=builder-blocks] > div'
-        : '[class*=builder-blocks] > div';
-
-      const locator = page.locator(selector).filter({ hasText: 'Enter some text...' }).last();
-
-      page.locator(selector).innerText;
+      const locator = page
+        .locator(FIRST_BLOCK_SELECTOR)
+        .filter({ hasText: 'Enter some text...' })
+        .last();
 
       await expectStylesForElement({ expected, locator });
       // TODO: fix this
       // check the title is correct
       // title: 'some special title'
     });
-    test('Symbol', async ({ page, packageName }) => {
-      // TODO: FIX broken test for NextJS
-      if (packageName === 'gen1-next') {
-        return;
-      }
-
+    test('Symbol', async ({ page }) => {
       await page.goto('/symbol-bindings');
 
       const expected = {
@@ -65,12 +52,10 @@ test.describe('Styles', () => {
         'border-bottom-left-radius': '30px',
         'border-bottom-right-radius': '40px',
       };
-
-      const selector = isRNSDK
-        ? '[data-class*=builder-blocks] > div'
-        : '[class*=builder-blocks] > div';
-
-      const locator = page.locator(selector).filter({ hasText: 'Enter some text...' }).last();
+      const locator = page
+        .locator(FIRST_BLOCK_SELECTOR)
+        .filter({ hasText: 'Enter some text...' })
+        .last();
 
       await expectStylesForElement({ expected, locator });
       // TODO: fix this
@@ -96,14 +81,15 @@ test.describe('Styles', () => {
     await expect(locator).toHaveCSS('margin-left', '0px');
   });
 
-  const excludeReactNativeAndOldReact = excludeTestFor({
-    // we don't support CSS nesting in RN.
-    reactNative: true,
-    // old React SDK should support CSS nesting, but it seems to not be implemented properly.
-    oldReact: true,
-  });
-
-  excludeReactNativeAndOldReact('Should apply CSS nesting', async ({ page }) => {
+  test('Should apply CSS nesting', async ({ page }) => {
+    test.fail(
+      excludeTestFor({
+        // we don't support CSS nesting in RN.
+        reactNative: true,
+        // old React SDK should support CSS nesting, but it seems to not be implemented properly.
+        oldReact: true,
+      })
+    );
     await page.goto('./css-nesting');
 
     const blueText = page.locator('text=blue');

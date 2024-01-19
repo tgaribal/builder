@@ -1,7 +1,8 @@
+import type { BlocksWrapperProps } from '../components/blocks/blocks-wrapper.lite.jsx';
+import type { ApiVersion } from '../types/api-version.js';
 import type { BuilderContent } from '../types/builder-content.js';
 import type { ComponentInfo } from '../types/components.js';
 import type { Dictionary, Nullable } from '../types/typescript.js';
-import type { ApiVersion } from '../types/api-version.js';
 
 export type RegisteredComponent = ComponentInfo & {
   component: any;
@@ -13,7 +14,8 @@ export type BuilderRenderState = Record<string, unknown>;
 
 export type BuilderRenderContext = Record<string, unknown>;
 
-export interface BuilderContextInterface {
+export interface BuilderContextInterface
+  extends Pick<BlocksWrapperProps, 'BlocksWrapper' | 'BlocksWrapperProps'> {
   content: Nullable<BuilderContent>;
   context: BuilderRenderContext;
   /**

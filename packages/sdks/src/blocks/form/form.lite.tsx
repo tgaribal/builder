@@ -21,7 +21,7 @@ export default function FormComponent() {
 // /**
 //  * This import is used by the Svelte SDK. Do not remove.
 //  */
-// // eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
+//
 // import { setAttrs } from '../helpers.js';
 // import { set } from '../../functions/set';
 // /**
@@ -286,14 +286,12 @@ export default function FormComponent() {
 //       name={props.name}
 //       onSubmit={(event) => state.onSubmit(event)}
 //       {...useTarget({
-//         vue2: filterAttrs(props.attributes, 'v-on:', false),
-//         vue3: filterAttrs(props.attributes, 'v-on:', false),
+//         vue: filterAttrs(props.attributes, 'v-on:', false),
 //         svelte: filterAttrs(props.attributes, 'on:', false),
 //         default: {},
 //       })}
 //       {...useTarget({
-//         vue2: filterAttrs(props.attributes, 'v-on:', true),
-//         vue3: filterAttrs(props.attributes, 'v-on:', true),
+//         vue: filterAttrs(props.attributes, 'v-on:', true),
 //         svelte: filterAttrs(props.attributes, 'on:', true),
 //         default: props.attributes,
 //       })}
