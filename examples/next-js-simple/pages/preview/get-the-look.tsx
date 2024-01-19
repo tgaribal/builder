@@ -3,7 +3,7 @@ import { BuilderComponent, builder, useIsPreviewing } from '@builder.io/react';
 import { find } from 'lodash';
 // import { BUILDER_API_KEY, SiteSettings } from 'src/scripts/utils/environment';
 
-builder.init("aa96744e7fe74e2a90d22918299c1f1d");
+// builder.init("aa96744e7fe74e2a90d22918299c1f1d");
 export default function GetTheLookBuilder ({ productTags }: { productTags: string[] }) {
   const isPreviewing = useIsPreviewing();
   const [data, setData] = useState({});

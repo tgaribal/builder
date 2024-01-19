@@ -2,7 +2,7 @@ import { Builder, withChildren, BuilderBlocks  } from '@builder.io/react';
 import Link from 'next/link';
 
 export const ExampleWithChildren = (props) => {
-  
+  console.log('PROPS: ', { props })
   return (
     <div>
         <BuilderBlocks
@@ -11,6 +11,7 @@ export const ExampleWithChildren = (props) => {
             blocks={props.before}
             dataPath={`component.options.before`} />
         <h2>THIS IS TEXT</h2>
+        <div>{props.reference?.value?.data?.text}</div>
         <BuilderBlocks
             child
             parentElementId={props.builderBlock && props.builderBlock.id}
@@ -20,14 +21,25 @@ export const ExampleWithChildren = (props) => {
   )
  };
 
+ Builder.register("insertMenu", {
+  name: "FriendlyNamed Components",
+  items:[
+    { name: 'ProductsCollection', friendlyName: 'something new'}
+  ] 
+});
  Builder.registerComponent(withChildren(ExampleWithChildren), {
     name: "ProductsCollection",
+    friendlyName: 'something new',
     inputs: [
       {
         name: "before",
         type: "blocks",
         hideFromUI: true,
         defaultValue: [],
+      },
+      {
+        name: 'product',
+        type: 'sfccCommerceProduct',
       },
       {
         name: "types",

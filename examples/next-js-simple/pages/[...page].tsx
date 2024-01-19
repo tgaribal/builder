@@ -5,12 +5,17 @@ import { getAsyncProps } from '@builder.io/utils';
 import DefaultErrorPage from 'next/error'
 import Head from 'next/head'
 import builderConfig from '@config/builder'
+import * as fs from 'fs';
 // loading widgets dynamically to reduce bundle size, will only be included in bundle when is used in the content
 import '@builder.io/widgets/dist/lib/builder-widgets-async'
 import '@components/hero/Hero'
 import "@components/KnowdeButton/KnowdeButton"
 import "@components/Slider/Slider"
 import "@components/AsyncComp/AsycnComp"
+import "@components/ProductBox/ProductBox"
+import "@components/abTestComp/AbTestComp";
+
+import { useEffect } from 'react';
 
 
 const retailerData = { name: 'retailer one', token: 100} //getRetailerToken()
@@ -43,31 +48,46 @@ export async function getStaticProps({
   params,
 }: GetStaticPropsContext<{ page: string[] }>) {
   console.log("ALL PARAMS: ", params?.page)
-  const locale = 'en';
+  const locale = 'Default';
 
   const page =
     (await builder
       .get("page", {
       userAttributes: {
           urlPath: '/' + (params?.page?.join('/') || ''),
-          // locale
         },
-      // locale,
-      enrich: true
+      options: {
+        enrich: true,
+      }
       }).toPromise()) || null
-      // console.log('PAGE SERVER: ', page)
-    // const authors = 
-    // console.log('AUTHORS: ', authors);
-    // await getAsyncProps(page, {
-    //   async AsyncComp(props) {
-    //     let user = await builder.getAll('author', {limit: 3, fields: 'data.name'}) || null;
-    //     return {
-    //       user 
-    //     };
-    //   },
-    // });
 
-    console.log('SERVER: ', page)
+    // console.log('PAGE: ', page)
+
+    // function upload_image() {
+    //   // Read the binary data from the image file
+    //   var bitmap = fs.readFileSync('./config/path-to-media.png');
+    //   // Send a POST request to Builder Upload API 
+    //   // which includes the name of the file.
+    //   // Include the binary data as the request body and needed headers
+    //   fetch("https://builder.io/api/v1/upload?name=MyFileName.png", {
+    //     method: "POST",
+    //     body: bitmap, // binary data of the image
+    //     headers: {
+    //       // header with private key
+    //      "Authorization": "Bearer bpk-33b7b99357794f8ba2b843c61f2cf45e",
+    //      // header with the type of the image
+    //      "Content-Type": "image/jpeg" 
+    //     },
+    //  }).then(res => {
+    //       return res.json(); // Parse the response JSON
+    //  }).then(resp => {
+    //      console.log(resp); // Log the response JSON
+    //  }).catch((e) => console.log(e)); // log errors
+    // }
+
+    // upload_image();
+
+    // console.log('SERVER: ', page)
     // console.log('something: ', something)
   return {
     props: {
@@ -80,26 +100,15 @@ export async function getStaticProps({
     revalidate: 5,
   }
 }
-
 export async function getStaticPaths() {
   const pages = await builder.getAll('page', {
     options: { noTargeting: true },
-    fields: 'data.url,id',
-    limit: 100
+    fields: 'data.url',
   })
-  let paths = pages.map((page) => {
-    // console.log('URL: ', page?.data?.url, page)
-    // if (!page?.data?.url) {
-    //   console.log('ID: ', page?.id)
-    //   return '/'
-    // }
-    let url = `${page?.data?.url}`;
-    return url;
-  })
+  // const paths = pages.map((page) => `${page.data?.url}`);
   // console.log('PATHS: ', paths)
-
   return {
-    paths,
+    paths: [], //pages.map((page) => `{${page.data?.url}}`),
     fallback: true,
   }
 }
@@ -111,7 +120,8 @@ export default function Page({
   const router = useRouter()
   const isPreviewingInBuilder = useIsPreviewing()
   const show404 = !page && !isPreviewingInBuilder
-
+  // const fetch = require("node-fetch");
+  // const fs = require('fs');
   if (router.isFallback) {
     return <h1>Loading...</h1>
   }
@@ -142,24 +152,28 @@ export default function Page({
   //     console.log('click', e)
   //     updateFooter();
   // }  
-console.log('PAGE', page)
+console.log('PAGE PROPS ', page)
+
   return (
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {!page && <meta name="robots" content="noindex" />}
-        <title>{page?.data?.title}</title>
-        {page?.data?.scripts}
       </Head>
       {show404 ? (
         <DefaultErrorPage statusCode={404} />
       ) : (
+        <>
             <BuilderComponent 
               model="page" 
               locale={locale} 
               content={page}
-              data={{retailerData}} />
-      
+              options={{enrich: true}}
+              contentLoaded={(data, something) => {
+                console.log('PAGE in loaded: ', something)
+              }}
+              data={{user: 'tim', loggedIn: true}} />
+      </>
       )}
     </>
   )

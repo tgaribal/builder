@@ -4,9 +4,7 @@ export function AsyncComp(props) {
     console.log('PROPS: ', props)
     return (
         <div >
-            {/* {props.user.map(user => {
-                return (<div>{user.item}</div>)
-            })} */}
+            {/* <img src=`{${props.image}?&width=${props.width}&height=${props.height}}` /> */}
         </div>
     )
 };
@@ -14,6 +12,24 @@ export function AsyncComp(props) {
 Builder.registerComponent(withChildren(AsyncComp), {
   name: 'AsyncComp',
   inputs: [
+    {
+      name: 'image',
+      type: 'file'
+    },
+    {
+      name: 'height',
+      type: 'number',
+      showIf: (options) => {
+        return options.get('image')
+      }
+    },
+    {
+      name: 'width',
+      type: 'number',
+      showIf: (options) => {
+        return options.get('image')
+      }
+    },
     {
       name: 'tabs',
       type: 'list',
@@ -29,6 +45,7 @@ Builder.registerComponent(withChildren(AsyncComp), {
           defaultValue: [],
         },
       ],
+      copyOnAdd: false,
       defaultValue: [
         {
           label: 'Tab 1',

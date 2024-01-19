@@ -1,7 +1,7 @@
 import { BuilderComponent, BuilderContent, useIsPreviewing, builder } from '@builder.io/react';
 import 'components/hero/Hero'
 
-builder.init('271bdcf584e24ca896dede7a91dfb1cb')
+// builder.init('271bdcf584e24ca896dede7a91dfb1cb')
 export async function getStaticProps() {
 
   const easteregg = await builder

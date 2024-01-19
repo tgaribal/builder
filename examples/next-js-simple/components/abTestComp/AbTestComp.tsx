@@ -36,6 +36,7 @@ export const AbTestComp = (props:any) => {
         return (
           <>
             <div>
+              <h2>{props.title}</h2>
               {data?.name || 'helllo'}
             </div>
           </>
@@ -52,7 +53,8 @@ Builder.registerComponent(AbTestComp, {
   inputs: [
     {
       name: 'title',
-      type: 'text',
+      type: 'string',
+      enum: ["another", "something else", "the other"]
     }, 
     {
       name: 'author',

@@ -44,15 +44,19 @@
     ]
   },
   "dependencies": {
-    "@builder.io/react": "^3.0.14",
+    "@builder.io/dev-tools": "^0.2.8",
+    "@builder.io/react": "^3.1.1",
+    "@builder.io/sdk": "^2.1.1",
     "@builder.io/utils": "^1.1.16",
     "@builder.io/widgets": "^1.2.23",
     "@emotion/react": "^11.11.1",
+    "fs": "^0.0.1-security",
     "next": "^13.3.1",
     "next-seo": "^5.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "swiper": "^11.0.1"
+    "swiper": "^11.0.1",
+    "theme-ui": "^0.16.1"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^10.0.1",
@@ -66,6 +70,9 @@
   },
   "resolutions": {
     "webpack": "^5.0.0-beta.30"
+  },
+  "browser": {
+    "fs": false
   },
   "license": "MIT"
 }
