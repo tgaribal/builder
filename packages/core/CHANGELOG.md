@@ -1,5 +1,19 @@
 # @builder.io/sdk
 
+## 2.2.2
+
+### Patch Changes
+
+- f67242f: types: add `meta` property to Input
+
+## 2.2.0
+
+- Stricter checking of trusted hosts.
+
+## 2.1.2
+
+- Fix secure cookie spacing.
+
 ## 2.1.1
 
 - Accept `authToken` option in `getAll` to fetch private models.

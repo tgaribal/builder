@@ -1,8 +1,8 @@
 export interface GetContentOptions {
-  /** The model to get content for */
+  /** The model to get content for (required) */
   model: string;
 
-  /** Your public API key */
+  /** Your public API key (required) */
   apiKey: string;
 
   /** Number of items to fetch. Default is 1 */
@@ -53,25 +53,12 @@ export interface GetContentOptions {
   options?: Record<string, any> | URLSearchParams;
 
   /**
-   * If set to `true`, it will lazy load symbols/references.
-   * If set to `false`, it will render the entire content tree eagerly.
-   * @deprecated use `enrich` instead
-   */
-  noTraverse?: boolean;
-
-  /**
    * If set to `false`, it will not use cookies to target content. Therefore, A/B Testing will be disabled and
    * only the default variation will be returned to every user.
    *
    * Defaults to `true`.
    */
   canTrack?: boolean;
-
-  /**
-   * Include content of references in the response. Defaults to `true`.
-   * @deprecated use `enrich` instead
-   */
-  includeRefs?: boolean;
 
   /**
    * Include multilevel references in the response.
@@ -86,9 +73,9 @@ export interface GetContentOptions {
   /**
    * If provided, sets the Builder API version used to fetch content.
    *
-   * Defaults to `v3`.
+   * Currently, the only available API version is `v3`.
    */
-  apiVersion?: 'v2' | 'v3';
+  apiVersion?: 'v3';
 
   /**
    * Only include these fields.

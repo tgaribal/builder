@@ -14,10 +14,7 @@ import type {
   BuilderRenderState,
   RegisteredComponents,
 } from '../../context/types.js';
-import {
-  components,
-  serializeComponentInfo,
-} from '../../functions/register-component.js';
+import { serializeComponentInfo } from '../../functions/register-component.js';
 import type { ComponentInfo } from '../../types/components.js';
 import type { Dictionary } from '../../types/typescript.js';
 import Blocks from '../blocks/blocks.lite.jsx';
@@ -27,7 +24,7 @@ import EnableEditor from './components/enable-editor.lite.jsx';
 import ContentStyles from './components/styles.lite.jsx';
 import {
   getContentInitialValue,
-  getContextStateInitialValue,
+  getRootStateInitialValue,
 } from './content.helpers.js';
 import type { ContentProps } from './content.types.js';
 import { wrapComponentRef } from './wrap-component-ref.js';
@@ -55,12 +52,6 @@ export default function ContentComponent(props: ContentProps) {
 
     registeredComponents: [
       ...getDefaultRegisteredComponents(),
-      // While this `components` object is deprecated, we must maintain support for it.
-      // Since users are able to override our default components, we need to make sure that we do not break such
-      // existing usage.
-      // This is why we spread `components` after the default Builder.io components, but before the `props.customComponents`,
-      // which is the new standard way of providing custom components, and must therefore take precedence.
-      ...components,
       ...(props.customComponents || []),
     ].reduce<RegisteredComponents>(
       (acc, { component, ...info }) => ({
@@ -91,7 +82,7 @@ export default function ContentComponent(props: ContentProps) {
           data: props.data,
         }),
         localState: undefined,
-        rootState: getContextStateInitialValue({
+        rootState: getRootStateInitialValue({
           content: props.content,
           data: props.data,
           locale: props.locale,
@@ -106,12 +97,6 @@ export default function ContentComponent(props: ContentProps) {
         apiVersion: props.apiVersion,
         componentInfos: [
           ...getDefaultRegisteredComponents(),
-          // While this `components` object is deprecated, we must maintain support for it.
-          // Since users are able to override our default components, we need to make sure that we do not break such
-          // existing usage.
-          // This is why we spread `components` after the default Builder.io components, but before the `props.customComponents`,
-          // which is the new standard way of providing custom components, and must therefore take precedence.
-          ...components,
           ...(props.customComponents || []),
         ].reduce<Dictionary<ComponentInfo>>(
           (acc, { component: _, ...info }) => ({
@@ -139,17 +124,19 @@ export default function ContentComponent(props: ContentProps) {
   return (
     <EnableEditor
       content={props.content}
+      data={props.data}
       model={props.model}
       context={props.context}
       apiKey={props.apiKey}
       canTrack={props.canTrack}
       locale={props.locale}
-      includeRefs={props.includeRefs}
       enrich={props.enrich}
       showContent={props.showContent}
       builderContextSignal={builderContextSignal}
       contentWrapper={props.contentWrapper}
       contentWrapperProps={props.contentWrapperProps}
+      linkComponent={props.linkComponent}
+      trustedHosts={props.trustedHosts}
       {...useTarget({
         // eslint-disable-next-line object-shorthand
         react: { setBuilderContextSignal: setBuilderContextSignal },
@@ -174,6 +161,7 @@ export default function ContentComponent(props: ContentProps) {
         blocks={builderContextSignal.value.content?.data?.blocks}
         context={builderContextSignal}
         registeredComponents={state.registeredComponents}
+        linkComponent={props.linkComponent}
       />
     </EnableEditor>
   );

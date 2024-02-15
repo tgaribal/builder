@@ -1,5 +1,6 @@
 import { AB_TEST_INTERACTIVE } from './ab-test-interactive.js';
 import { CONTENT as abTest } from './ab-test.js';
+import { ANIMATIONS } from './animations.js';
 import { CONTENT as columns } from './columns.js';
 import { CONTENT as contentBindings } from './content-bindings.js';
 import { CONTENT as cssNesting } from './css-nesting.js';
@@ -9,18 +10,25 @@ import {
 } from './custom-breakpoints.js';
 import { CONTENT as dataBindingStyles } from './data-binding-styles.js';
 import { CONTENT as dataBindings } from './data-bindings.js';
+import { DATA_PREVIEW } from './data-preview.js';
+import { DUPLICATE_ATTRIBUTES } from './duplicate-attributes.js';
 import { EDITING_STYLES } from './editing-styles.js';
 import { CONTENT as elementEvents } from './element-events.js';
+import { EXTERNAL_DATA } from './external-data.js';
+import { FORM } from './form.js';
 import { CONTENT as homepage } from './homepage.js';
 import { CONTENT as image } from './image.js';
 import { INPUT_DEFAULT_VALUE } from './input-default-value.js';
 import { JS_CODE_CONTENT } from './js-code.js';
+import { JS_CONTENT_IS_BROWSER } from './js-content-is-browser.js';
 import { CONTENT as linkUrl } from './link-url.js';
 import { CONTENT as nestedSymbols } from './nested-symbols.js';
 import { CONTENT as reactiveState } from './reactive-state.js';
 import { REPEAT_ITEMS_BINDINGS } from './repeat-items-bindings.js';
 import { SHOW_HIDE_IF_REPEATS } from './show-hide-if-repeat.js';
 import { SHOW_HIDE_IF } from './show-hide-if.js';
+import { SLOT_WITHOUT_SYMBOL, SLOT_WITH_SYMBOL } from './slot-with-symbol.js';
+import { SLOT } from './slot.js';
 import { CONTENT as stateBinding } from './state-binding.js';
 import { CONTENT as symbolAbTest } from './symbol-ab-test.js';
 import { CONTENT as symbolBindings } from './symbol-bindings.js';
@@ -30,7 +38,6 @@ import { CONTENT_WITHOUT_SYMBOLS, CONTENT as symbols } from './symbols.js';
 import { CONTENT as textBlock } from './text-block.js';
 import type { BuilderContent } from './types.js';
 import { CONTENT as video } from './video.js';
-import { DUPLICATE_ATTRIBUTES } from './duplicate-attributes.js';
 
 function isBrowser(): boolean {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
@@ -41,7 +48,6 @@ const getPathnameFromWindow = (): string => (isBrowser() ? window.location.pathn
 const PAGES = {
   '/': homepage,
   '/api-version-v1': CONTENT_WITHOUT_SYMBOLS,
-  '/api-version-v2': CONTENT_WITHOUT_SYMBOLS,
   '/api-version-v3': CONTENT_WITHOUT_SYMBOLS,
   '/api-version-default': CONTENT_WITHOUT_SYMBOLS,
   '/can-track-false': homepage,
@@ -64,6 +70,7 @@ const PAGES = {
   '/custom-breakpoints': customBreakpoints,
   '/reactive-state': reactiveState,
   '/element-events': elementEvents,
+  '/external-data': EXTERNAL_DATA,
   '/show-hide-if': SHOW_HIDE_IF,
   '/show-hide-if-repeats': SHOW_HIDE_IF_REPEATS,
   '/custom-breakpoints-reset': customBreakpointsReset,
@@ -75,18 +82,26 @@ const PAGES = {
   '/repeat-items-bindings': REPEAT_ITEMS_BINDINGS,
   '/input-default-value': INPUT_DEFAULT_VALUE,
   '/duplicate-attributes': DUPLICATE_ATTRIBUTES,
+  '/js-content-is-browser': JS_CONTENT_IS_BROWSER,
+  '/slot': SLOT,
+  '/slot-with-symbol': SLOT_WITH_SYMBOL,
+  '/slot-without-symbol': SLOT_WITHOUT_SYMBOL,
+  '/no-trusted-hosts': homepage,
+  '/editing-styles-no-trusted-hosts': EDITING_STYLES,
+  '/animations': ANIMATIONS,
+  '/data-preview': DATA_PREVIEW,
+  '/form': FORM,
 } as const;
 
 const apiVersionPathToProp = {
   '/api-version-v1': { apiVersion: 'v1' },
-  '/api-version-v2': { apiVersion: 'v2' },
   '/api-version-v3': { apiVersion: 'v3' },
 } as const;
 
 export type Path = keyof typeof PAGES;
 
 const GEN1_ONLY_PATHNAMES: Path[] = ['/api-version-v1'];
-const GEN2_ONLY_PATHNAMES: Path[] = ['/api-version-v2'];
+const GEN2_ONLY_PATHNAMES: Path[] = [];
 
 export const getAllPathnames = (target: 'gen1' | 'gen2'): string[] => {
   return Object.keys(PAGES).filter(pathname => {
@@ -115,7 +130,7 @@ type ContentResponse = { results: BuilderContent[] };
 export const getProps = async (args: {
   pathname?: string;
   _processContentResult?: (options: any, content: ContentResponse) => Promise<BuilderContent[]>;
-  getContent?: (opts: any) => Promise<BuilderContent | null>;
+  fetchOneEntry?: (opts: any) => Promise<BuilderContent | null>;
   options?: any;
   data?: 'real' | 'mock';
 }) => {
@@ -123,16 +138,16 @@ export const getProps = async (args: {
     pathname: _pathname = getPathnameFromWindow(),
     _processContentResult,
     data = 'mock',
-    getContent,
+    fetchOneEntry,
     options,
   } = args;
   const pathname = normalizePathname(_pathname);
 
-  if (data === 'real' && getContent) {
+  if (data === 'real' && fetchOneEntry) {
     return {
       model: 'page',
       apiKey: REAL_API_KEY,
-      content: await getContent({
+      content: await fetchOneEntry({
         model: 'page',
         apiKey: REAL_API_KEY,
         userAttributes: { urlPath: pathname },
@@ -150,6 +165,10 @@ export const getProps = async (args: {
     pathname === '/can-track-false'
       ? {
           canTrack: false,
+        }
+      : pathname.includes('no-trusted-hosts')
+      ? {
+          trustedHosts: [],
         }
       : {};
 

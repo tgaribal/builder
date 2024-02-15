@@ -26,12 +26,15 @@ import { getInteractionPropertiesForEvent } from '../../../functions/track/inter
 import { getDefaultCanTrack } from '../../../helpers/canTrack.js';
 import { logger } from '../../../helpers/logger.js';
 import { postPreviewContent } from '../../../helpers/preview-lru-cache/set.js';
+import { createEditorListener } from '../../../helpers/subscribe-to-editor.js';
 import {
   registerInsertMenu,
   setupBrowserForEditing,
 } from '../../../scripts/init-editing.js';
 import type { BuilderContent } from '../../../types/builder-content.js';
 import type { ComponentInfo } from '../../../types/components.js';
+import type { Dictionary } from '../../../types/typescript.js';
+import { triggerAnimation } from '../../block/animator.js';
 import type {
   BuilderComponentStateChange,
   ContentProps,
@@ -47,7 +50,6 @@ useMetadata({
 type BuilderEditorProps = Omit<
   ContentProps,
   | 'customComponents'
-  | 'data'
   | 'apiVersion'
   | 'isSsrAbTest'
   | 'blocksWrapper'
@@ -65,6 +67,19 @@ export default function EnableEditor(props: BuilderEditorProps) {
   const elementRef = useRef<HTMLDivElement>();
   const state = useStore({
     forceReRenderCount: 0,
+    firstRender: true,
+    mergeNewRootState(newData: Dictionary<any>) {
+      const combinedState = {
+        ...props.builderContextSignal.value.rootState,
+        ...newData,
+      };
+
+      if (props.builderContextSignal.value.rootSetState) {
+        props.builderContextSignal.value.rootSetState?.(combinedState);
+      } else {
+        props.builderContextSignal.value.rootState = combinedState;
+      }
+    },
     mergeNewContent(newContent: BuilderContent) {
       const newContentValue = {
         ...props.builderContextSignal.value.content,
@@ -107,12 +122,11 @@ export default function EnableEditor(props: BuilderEditorProps) {
       default: props.contentWrapper || 'div',
     }),
     processMessage(event: MessageEvent): void {
-      const { data } = event;
-
-      if (data) {
-        switch (data.type) {
-          case 'builder.configureSdk': {
-            const messageContent = data.data;
+      return createEditorListener({
+        model: props.model,
+        trustedHosts: props.trustedHosts,
+        callbacks: {
+          configureSdk: (messageContent) => {
             const { breakpoints, contentId } = messageContent;
             if (
               !contentId ||
@@ -122,28 +136,18 @@ export default function EnableEditor(props: BuilderEditorProps) {
             }
             if (breakpoints) {
               state.mergeNewContent({ meta: { breakpoints } });
-            }
-            state.forceReRenderCount = state.forceReRenderCount + 1; // This is a hack to force Qwik to re-render.
-            break;
-          }
-          case 'builder.contentUpdate': {
-            const messageContent = data.data;
-            const key =
-              messageContent.key ||
-              messageContent.alias ||
-              messageContent.entry ||
-              messageContent.modelName;
-
-            const contentData = messageContent.data;
-
-            if (key === props.model) {
-              state.mergeNewContent(contentData);
               state.forceReRenderCount = state.forceReRenderCount + 1; // This is a hack to force Qwik to re-render.
             }
-            break;
-          }
-        }
-      }
+          },
+          animation: (animation) => {
+            triggerAnimation(animation);
+          },
+          contentUpdate: (newContent) => {
+            state.mergeNewContent(newContent);
+            state.forceReRenderCount = state.forceReRenderCount + 1; // This is a hack to force Qwik to re-render.
+          },
+        },
+      })(event);
     },
     evaluateJsCode() {
       // run any dynamic JS code attached to content
@@ -282,8 +286,8 @@ export default function EnableEditor(props: BuilderEditorProps) {
       registerInsertMenu();
       setupBrowserForEditing({
         ...(props.locale ? { locale: props.locale } : {}),
-        ...(props.includeRefs ? { includeRefs: props.includeRefs } : {}),
         ...(props.enrich ? { enrich: props.enrich } : {}),
+        ...(props.trustedHosts ? { trustedHosts: props.trustedHosts } : {}),
       });
       Object.values<ComponentInfo>(
         props.builderContextSignal.value.componentInfos
@@ -422,10 +426,7 @@ export default function EnableEditor(props: BuilderEditorProps) {
 
   onUpdate(() => {
     state.evaluateJsCode();
-  }, [
-    props.builderContextSignal.value.content?.data?.jsCode,
-    props.builderContextSignal.value.rootState,
-  ]);
+  }, [props.builderContextSignal.value.content?.data?.jsCode]);
 
   onUpdate(() => {
     state.runHttpRequests();
@@ -434,6 +435,18 @@ export default function EnableEditor(props: BuilderEditorProps) {
   onUpdate(() => {
     state.emitStateUpdate();
   }, [props.builderContextSignal.value.rootState]);
+
+  onUpdate(() => {
+    if (props.data) {
+      state.mergeNewRootState(props.data);
+    }
+  }, [props.data]);
+
+  onUpdate(() => {
+    if (props.locale) {
+      state.mergeNewRootState({ locale: props.locale });
+    }
+  }, [props.locale]);
 
   return (
     <Show when={props.builderContextSignal.value.content}>

@@ -23,6 +23,7 @@
     "start:reactNative": "SDK=reactNative yarn _start",
     "start:vue": "SDK=vue yarn _start",
     "start:rsc": "SDK=rsc yarn _start",
+    "test:update": "yarn test:browser --update && yarn test:node --update && yarn test:edge --update",
     "test": "yarn test:browser && yarn test:node && yarn test:edge",
     "test:browser": "SDK_ENV=browser vitest run",
     "test:node": "SDK_ENV=node vitest run",
@@ -45,7 +46,7 @@
     "e2e:build:react-native": "nx run-many -t build -p @e2e/react-native",
     "e2e:build:solid": "nx run-many -t build -p @e2e/solid @e2e/solid-start",
     "e2e:build:qwik": "nx run-many -t build -p @e2e/qwik-city",
-    "e2e:build:react": "nx run-many -t build -p @e2e/react @e2e/next-pages-dir --exclude @e2e/next-app-dir-client",
+    "e2e:build:react": "nx run-many -t build -p @e2e/react @e2e/next-pages-dir @e2e/next-app-dir-client",
     "e2e:build:nextjs": "nx run-many -t build -p @e2e/next-app-dir",
     "e2e:build:vue": "nx run-many -t build -p @e2e/vue @e2e/nuxt",
     "e2e:run": "nx test @e2e/tests",
@@ -66,8 +67,8 @@
     "upgrade-example:all": "yarn loop upgrade-example latest"
   },
   "dependencies": {
-    "@builder.io/mitosis": "^0.0.140",
-    "@builder.io/mitosis-cli": "^0.0.99",
+    "@builder.io/mitosis": "^0.0.145",
+    "@builder.io/mitosis-cli": "^0.0.145",
     "isolated-vm": "^4.6.0",
     "node-fetch": "^2.6.1",
     "nx": "^16.6.0",

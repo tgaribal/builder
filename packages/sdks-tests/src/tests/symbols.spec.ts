@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 import { DEFAULT_TEXT_SYMBOL, FRENCH_TEXT_SYMBOL } from '../specs/symbol-with-locale.js';
 import { FIRST_SYMBOL_CONTENT, SECOND_SYMBOL_CONTENT } from '../specs/symbols.js';
-import { EXCLUDE_GEN_1, EXCLUDE_GEN_2, isOldReactSDK, isRNSDK, test } from './helpers.js';
+import { EXCLUDE_GEN_2, isOldReactSDK, isRNSDK, test } from './helpers.js';
 import type { PackageName } from './sdk.js';
 import { sdk } from './sdk.js';
 
@@ -224,58 +224,14 @@ test.describe('Symbols', () => {
 
       await expect(x).toBeGreaterThanOrEqual(2);
     });
-
-    test('apiVersion is set to v2', async ({ page, packageName }) => {
-      test.fail(EXCLUDE_GEN_1);
-      test.fail(SSR_FETCHING_PACKAGES.includes(packageName));
-      let x = 0;
-
-      const urlMatch = /.*cdn\.builder\.io\/api\/v2\/content\/symbol.*/;
-
-      await page.route(urlMatch, route => {
-        x++;
-
-        const keyName = 'results';
-
-        return route.fulfill({
-          status: 200,
-          json: {
-            [keyName]: [x === 0 ? FIRST_SYMBOL_CONTENT : SECOND_SYMBOL_CONTENT],
-          },
-        });
-      });
-
-      await page.goto('/api-version-v2');
-
-      await testSymbols(page);
-
-      await expect(x).toBeGreaterThanOrEqual(2);
-    });
   });
 
   test('works in nested symbols with inherit', async ({ packageName, page }) => {
     await page.goto('/nested-symbols');
 
-    // Skipping the test as v2 sdks currently don't support Slot
     // gen1-remix and gen1-next are also skipped because React.useContext is not recognized
-    test.fail(
-      [
-        'react-native',
-        'solid',
-        'solid-start',
-        'qwik-city',
-        'next-pages-dir',
-        'next-app-dir-client',
-        'next-app-dir',
-        'react',
-        'vue',
-        'nuxt',
-        'svelte',
-        'sveltekit',
-        'gen1-remix',
-        'gen1-next',
-      ].includes(packageName)
-    );
+    // rsc skipped because it fetches the content from the server
+    test.fail(['gen1-remix', 'gen1-next', 'next-app-dir'].includes(packageName));
 
     const symbols = page.locator('[builder-model="symbol"]');
     await expect(symbols).toHaveCount(2);

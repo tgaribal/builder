@@ -1,5 +1,35 @@
 # @builder.io/react
 
+## 3.2.4
+
+### Patch Changes
+
+- 3764321: Fix: replace broken default value of Video Block with a working link.
+
+## 3.2.3
+
+### Patch Changes
+
+- f67242f: types: add `meta` property to Input
+- Updated dependencies [f67242f]
+  - @builder.io/sdk@2.2.2
+
+## 3.2.2
+
+- Fix: `deviceSize` state not getting set properly.
+
+## 3.2.1
+
+- Fix: sigfault crash when using SDK in Node v20 + M1 Macs. Skips usage of `isolated-vm` in those environments.
+
+## 3.2.0
+
+- Stricter checking of trusted hosts.
+
+## 3.1.2
+
+- Use latest core sdk, to fix secure cookie spacing.
+
 ## 3.1.1
 
 - Use latest core sdk, to enable passing `authToken` to `getAll` on private models.

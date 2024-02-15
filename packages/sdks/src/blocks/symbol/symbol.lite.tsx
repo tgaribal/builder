@@ -7,18 +7,16 @@ import {
 } from '@builder.io/mitosis';
 import ContentVariants from '../../components/content-variants/content-variants.lite.jsx';
 import type { BuilderContent } from '../../types/builder-content.js';
-import type {
-  BuilderComponentsProp,
-  PropsWithBuilderData,
-} from '../../types/builder-props.js';
 import { filterAttrs } from '../helpers.js';
 /**
  * This import is used by the Svelte SDK. Do not remove.
  */
 
+import { getClassPropName } from '../../functions/get-class-prop-name.js';
 import type { Nullable } from '../../types/typescript.js';
 import { setAttrs } from '../helpers.js';
 import { fetchSymbolContent } from './symbol.helpers.js';
+import type { SymbolProps } from './symbol.types.js';
 
 useMetadata({
   rsc: {
@@ -26,33 +24,13 @@ useMetadata({
   },
 });
 
-export interface SymbolInfo {
-  model?: string;
-  entry?: string;
-  data?: any;
-  content?: BuilderContent;
-  inline?: boolean;
-  dynamic?: boolean;
-}
-
-export interface SymbolProps extends BuilderComponentsProp {
-  symbol?: SymbolInfo;
-  dataOnly?: boolean;
-  dynamic?: boolean;
-  attributes?: any;
-  inheritState?: boolean;
-}
-
-export default function Symbol(props: PropsWithBuilderData<SymbolProps>) {
+export default function Symbol(props: SymbolProps) {
   const state = useStore({
     get className() {
       return [
         ...useTarget({
-          vue: Object.keys(props.attributes.class),
-          react: [props.attributes.className],
-          rsc: [props.attributes.className],
           reactNative: [],
-          default: [props.attributes.class],
+          default: [props.attributes[getClassPropName()]],
         }),
         'builder-symbol',
         props.symbol?.inline ? 'builder-inline-symbol' : undefined,
@@ -124,7 +102,10 @@ export default function Symbol(props: PropsWithBuilderData<SymbolProps>) {
         __isNestedRender
         apiVersion={props.builderContext.value.apiVersion}
         apiKey={props.builderContext.value.apiKey!}
-        context={props.builderContext.value.context}
+        context={{
+          ...props.builderContext.value.context,
+          symbolId: props.builderBlock?.id,
+        }}
         customComponents={Object.values(props.builderComponents)}
         data={{
           ...props.symbol?.data,
@@ -133,6 +114,7 @@ export default function Symbol(props: PropsWithBuilderData<SymbolProps>) {
         }}
         model={props.symbol?.model}
         content={state.contentToUse}
+        linkComponent={props.builderLinkComponent}
       />
     </div>
   );

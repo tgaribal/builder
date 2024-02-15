@@ -109,15 +109,16 @@ export default function ContentVariants(props: VariantsProviderProps) {
               apiKey={props.apiKey}
               apiVersion={props.apiVersion}
               customComponents={props.customComponents}
+              linkComponent={props.linkComponent}
               canTrack={props.canTrack}
               locale={props.locale}
-              includeRefs={props.includeRefs}
               enrich={props.enrich}
               isSsrAbTest={state.shouldRenderVariants}
               blocksWrapper={props.blocksWrapper}
               blocksWrapperProps={props.blocksWrapperProps}
               contentWrapper={props.contentWrapper}
               contentWrapperProps={props.contentWrapperProps}
+              trustedHosts={props.trustedHosts}
             />
           )}
         </For>
@@ -135,15 +136,16 @@ export default function ContentVariants(props: VariantsProviderProps) {
         apiKey={props.apiKey}
         apiVersion={props.apiVersion}
         customComponents={props.customComponents}
+        linkComponent={props.linkComponent}
         canTrack={props.canTrack}
         locale={props.locale}
-        includeRefs={props.includeRefs}
         enrich={props.enrich}
         isSsrAbTest={state.shouldRenderVariants}
         blocksWrapper={props.blocksWrapper}
         blocksWrapperProps={props.blocksWrapperProps}
         contentWrapper={props.contentWrapper}
         contentWrapperProps={props.contentWrapperProps}
+        trustedHosts={props.trustedHosts}
       />
     </>
   );

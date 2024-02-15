@@ -1,11 +1,15 @@
+import { Content as BrowserContent } from '@builder.io/sdk-react/browser';
+import { Content as EdgeContent } from '@builder.io/sdk-react/edge';
 import {
   _processContentResult,
+  fetchOneEntry,
   getBuilderSearchParams,
-  getContent,
 } from '@builder.io/sdk-react/server';
 import { getProps } from '@e2e/tests';
 
-import { RenderContent } from '@builder.io/sdk-react';
+function isBrowser(): boolean {
+  return typeof window !== 'undefined' && typeof document !== 'undefined';
+}
 
 interface PageProps {
   params: {
@@ -22,7 +26,7 @@ export default async function Page(props: PageProps) {
     pathname: urlPath,
     _processContentResult,
     options: getBuilderSearchParams(props.searchParams),
-    getContent,
+    fetchOneEntry,
   });
 
   if (!builderProps.content) {
@@ -33,7 +37,11 @@ export default async function Page(props: PageProps) {
       </>
     );
   }
-  return <RenderContent {...builderProps} />;
+  return isBrowser() ? (
+    <BrowserContent {...builderProps} />
+  ) : (
+    <EdgeContent {...builderProps} />
+  );
 }
 
 export const revalidate = 4;

@@ -1,5 +1,126 @@
 # Builder.io Next.js SDK Changelog (@builder.io/sdk-react-nextjs)
 
+## 0.14.1
+
+### Patch Changes
+
+- a4bfcbc: Fix: move dynamicRequire of `isolated-vm` outside of global scope to reduce crashes/issues.
+
+## 0.14.0
+
+### Minor Changes
+
+- 388c152: - 🧨 Breaking changes: this release removes the following deprecations:
+
+  Exports:
+
+  - `RenderBlocks` -> `Blocks`
+  - `RenderContent` -> `Content`
+  - `getContent` -> `fetchOneEntry`
+  - `getAllContent` -> `fetchEntries`
+
+  Arguments/Props:
+
+  - `Content`'s `includeRefs` prop is removed in favor of `enrich`.
+  - `fetchOneEntry`'s `includeRefs` and `noTraverse` arguments are removed in favor of `enrich`.
+
+  Functionality:
+
+  - removed deprecated side-effect `registerComponent()`. Instead, use the `customComponents` prop of `Content`.
+
+## 0.13.4
+
+### Patch Changes
+
+- 3764321: Fix: replace broken default value of Video Block with a working link.
+
+## 0.13.3
+
+### Patch Changes
+
+- f67242f: types: add `meta` property to Input
+
+## 0.13.2
+
+## 0.13.1
+
+## 0.13.0
+
+### Minor Changes
+
+- da5d871: 🧨 Breaking Change: remove 'v2' as a viable `apiVersion`. Only 'v3' is now allowed.
+
+## 0.12.8
+
+### Patch Changes
+
+- 6b32014: Add `subscribeToEditor()` export that allows listening to content changes. Helpful for previewing data models.
+
+## 0.12.7
+
+## 0.12.6
+
+### Patch Changes
+
+- 8cc0cb8: Fix: updates to deeply nested Builder `state` value now propagate across content.
+
+## 0.12.5
+
+### Patch Changes
+
+- e7f6db6: Fix: sigfault crash when using SDK in Node v20 + M1 Macs. Skip usage of `isolated-vm` in those environments.
+
+## 0.12.4
+
+### Patch Changes
+
+- fdb6416: Feature: added `linkComponent` prop to provide a custom component for links.
+
+  This applies to:
+
+  - the Button component when provided a link
+  - the "Link URL" field for any block
+  - the "Link" field for a column within the Columns block.
+
+## 0.12.3
+
+### Patch Changes
+
+- 8b970b4: Fix: issue with Button `all: 'unset'` overriding all other styles.
+
+## 0.12.2
+
+### Patch Changes
+
+- fa616c9: Added a `trustedHosts` prop to `Content`. It is used to determine whether the SDK can enable editing/previewing mode within a host. Also added stricter default checking of trusted hosts.
+
+## 0.12.1
+
+### Patch Changes
+
+- 9b71eab: Feature: added support for the Builder `Slot` block
+
+## 0.11.5
+
+### Patch Changes
+
+- 9a631fa: Fix: update "/edge" and "/node" subpath exports to only point to their corresponding bundles. This guarantees that the browser bundle is never imported by mistake.
+
+## 0.11.4
+
+### Patch Changes
+
+- 80cf984: Fix: react to changes in `props.data`
+
+## 0.11.3
+
+### Patch Changes
+
+- 538d559: Fix: use correct export for ContentProps
+- 538d559: Improve "./edge" subpath export to automatically use the browser bundle for browser environments. This allows the usage of that subpath export without also manually toggling with the "./browser" bundle.
+- 538d559: Export prop types of all exported components in main index file.
+- 538d559: Improve documentation of `ContentProps` types.
+
 ## 0.11.2
 
 ## 0.11.1
