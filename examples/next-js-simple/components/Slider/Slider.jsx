@@ -128,18 +128,23 @@ Builder.registerComponent(SliderWithChildren, {
   name: 'Slider',
   inputs: [
     {
+      name: 'new-input',
+      type: 'text',
+      defaultValue: 'this is the default'
+    },
+    {
       name: 'autoplay',
       type: 'boolean',
       defaultValue: true,
       helperText: 'Enable autoplay',
     },
-    {
-      name: 'includeMargins',
-      friendlyName: 'Include side margins',
-      type: 'boolean',
-      defaultValue: true,
-      helperText: 'Add margin to the sides of the slider',
-    },
+    // {
+    //   name: 'includeMargins',
+    //   friendlyName: 'Include side margins',
+    //   type: 'boolean',
+    //   defaultValue: true,
+    //   helperText: 'Add margin to the sides of the slider',
+    // },
     {
       name: 'delay',
       type: 'string',

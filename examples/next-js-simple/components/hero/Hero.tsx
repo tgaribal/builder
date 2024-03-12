@@ -1,41 +1,120 @@
-import { Builder, withChildren  } from '@builder.io/react';
+import { Builder, BuilderBlocks, withChildren  } from '@builder.io/react';
 
-export const TestCustomComponent = (props:any) => {
-  console.log("PROSP: ", props.shouldSendFrontendEmail)
-  return (
-    <>
-    <div >
-      <h2>{props?.inputVal}</h2>
-      <>
-        {props?.list?.map((item: any, index: any) => {
-          return <div key={item.number+index}>{item.reviewText}</div>
-        })}
-      </>
-    </div>
-    <div>{props.children}</div>
-    </>
-  )
- };
+// export const TestCustomComponent = (props:any) => {
+//   // console.log("PROSP: ", props.shouldSendFrontendEmail)
+//   return (
+//     <>
+//     <div >
+//       <h2>{props?.inputVal}</h2>
+//       <>
+//         {props?.list?.map((item: any, index: any) => {
+//           return <div key={item.number+index}>{item.reviewText}</div>
+//         })}
+//       </>
+//     </div>
+//     <div>{props.children}</div>
+//     </>
+//   )
+//  };
 
 
 // const enum = ["CA", "NY", "IL"];
 
-Builder.registerComponent(TestCustomComponent, {
-    name: "ApplyForm",
-    inputs: [
-      {
-        name: 'shouldSendFrontendEmail',
-        type: 'boolean',
-        defaultValue: false
-      },
-      {
-        name: 'shouldSendBrontendEmail',
-        type: 'boolean',
-        defaultValue: false
-      }
-    ],
-    "hooks": {}
-})
+type Props = {
+	maxWidth: string;
+	children: any;
+	attributes: any;
+	builderBlock: any;
+};
+
+function Section({ maxWidth, attributes, builderBlock }: Props) {
+  console.log('MAX WIDTH Section: ', maxWidth)
+	return (
+		<section {...attributes} className={`${attributes.className} mx-auto`} style={{ maxWidth }} key={attributes.key}>
+			<BuilderBlocks blocks={builderBlock.children} parentElementId={builderBlock.id} dataPath="this.children" />
+		</section>
+	);
+}
+
+export const SectionWithChildren = withChildren(Section);
+
+Builder.registerComponent(SectionWithChildren, {
+	name: 'Core:Section',
+	// image: 'https://cdn.corpemf.com/www/builder-io/section.png',
+  image: 'https://cdn.builder.io/api/v1/image/assets%2FYJIGb4i01jvw0SRdL5Bt%2F01f5bfaeb99b47c784ea405ce9cbf18a',
+	override: true,
+	canHaveChildren: true,
+	noWrap: true,
+	inputs: [
+		{
+			name: 'maxWidth',
+			type: 'string',
+			enum: [
+				{
+					label: 'None',
+					value: '100%'
+				},
+				{
+					label: 'Large',
+					value: '32rem'
+				},
+				{
+					label: 'Extra large',
+					value: '36rem'
+				},
+				{
+					label: '2xl',
+					value: '42rem'
+				},
+				{
+					label: '3xl',
+					value: '48rem'
+				},
+				{
+					label: '4xl',
+					value: '56rem'
+				},
+				{
+					label: '5xl',
+					value: '64rem'
+				},
+				{
+					label: '6xl',
+					value: '72rem'
+				},
+				{
+					label: '7xl',
+					value: '80rem'
+				}
+			],
+			defaultValue: '72rem'
+		}
+	],
+	defaultStyles: {
+		marginTop: '0',
+		paddingTop: '20px',
+		paddingBottom: '20px',
+		paddingLeft: '20px',
+		paddingRight: '20px'
+	}
+});
+
+// Builder.registerComponent(TestCustomComponent, {
+//     name: "ApplyForm",
+//     inputs: [
+//       {
+//         name: 'shouldSendFrontendEmail',
+//         type: 'boolean',
+//         defaultValue: false
+//       },
+//       {
+//         name: 'shouldSendBrontendEmail',
+//         type: 'boolean',
+//         defaultValue: false
+//       }
+//     ],
+//     "hooks": {}
+// })
 // Builder.registerComponent(TestCustomComponent, {
 //   name: 'Test Custom Comp hello',
 //   // tag: 'something else here',
@@ -156,6 +235,3 @@ Builder.registerComponent(TestCustomComponent, {
 //     }
 //   ]
 // });
-
-
-

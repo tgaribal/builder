@@ -126,6 +126,9 @@ export default function Page({
     return <h1>Loading...</h1>
   }
     // console.log('client page: ', page)
+  const addToCart = () => {
+    alert('ITEM ADDED');
+  }
   const handleClick = () => {
     console.log('hello')
     builder.track('my-custom-event');
@@ -168,6 +171,7 @@ console.log('PAGE PROPS ', page)
               model="page" 
               locale={locale} 
               content={page}
+              context={{baseUrl: 'http://localhostpoop', addToCart}}
               options={{enrich: true}}
               contentLoaded={(data, something) => {
                 console.log('PAGE in loaded: ', something)

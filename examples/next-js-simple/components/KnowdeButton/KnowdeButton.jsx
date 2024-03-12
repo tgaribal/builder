@@ -22,24 +22,41 @@ export const ExampleWithChildren = (props) => {
  };
 
  Builder.register("insertMenu", {
-  name: "FriendlyNamed Components",
+  name: "Basics",
   items:[
-    { name: 'ProductsCollection', friendlyName: 'something new'}
+    { name: 'ProductsCollection', friendlyName: 'something new'},
+    { name: 'Text' }
   ] 
 });
  Builder.registerComponent(withChildren(ExampleWithChildren), {
     name: "ProductsCollection",
     friendlyName: 'something new',
+    image: 'https://cdn.corpemf.com/www/builder-io/section.png',
     inputs: [
+      {
+        name: 'text',
+        type: 'text'
+      },
+      {
+        name: 'style',
+        type: 'text',
+        enum: ['h1', 'h2', ]
+      },
       {
         name: "before",
         type: "blocks",
         hideFromUI: true,
         defaultValue: [],
+        childRequirements: {
+          message: 'You can only put Buttons, Text, or Headings in a Hero',
+          query: {
+            'component.options.before[0].component.name': { $in: ['Button', 'Text', 'Heading'] },
+          },
+        }
       },
       {
-        name: 'product',
-        type: 'sfccCommerceProduct',
+        name: 'reference',
+        type: 'sfCommerceProduct',
       },
       {
         name: "types",

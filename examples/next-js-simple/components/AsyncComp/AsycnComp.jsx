@@ -19,6 +19,7 @@ Builder.registerComponent(withChildren(AsyncComp), {
     {
       name: 'height',
       type: 'number',
+      required: true,
       showIf: (options) => {
         return options.get('image')
       }
