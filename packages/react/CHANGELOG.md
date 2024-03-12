@@ -1,5 +1,17 @@
 # @builder.io/react
 
+## 3.2.6
+
+### Patch Changes
+
+- 6dd554f: Update readme with absolute URLs
+
+## 3.2.5
+
+### Patch Changes
+
+- c32cbd6: Support single jsx node as `props.children` in `withChildren`
+
 ## 3.2.4
 
 ### Patch Changes

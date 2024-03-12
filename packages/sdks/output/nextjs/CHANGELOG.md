@@ -1,5 +1,29 @@
 # Builder.io Next.js SDK Changelog (@builder.io/sdk-react-nextjs)
 
+## 0.14.5
+
+### Patch Changes
+
+- b659b6f: Fix: usage of `Blocks` in custom components not setting `BlocksWrapper` correctly.
+
+## 0.14.4
+
+### Patch Changes
+
+- 9b873cd: Feature: allow passing `search` param (of type `URLSearchParams | string | object`) to `isPreviewing` and `isEditing` helpers. This allows users to rely on this function in SSR environments to determine whether the current request is a preview or edit request.
+
+## 0.14.3
+
+### Patch Changes
+
+- 4528969: move `/edge`, `/node` and `/browser` sub-path exports to `/bundle/edge`, `/bundle/node` and `/bundle/browser`
+
+## 0.14.2
+
+### Patch Changes
+
+- a730741: fix `userAttributes` types in `GetContentOptions`
+
 ## 0.14.1
 
 ### Patch Changes

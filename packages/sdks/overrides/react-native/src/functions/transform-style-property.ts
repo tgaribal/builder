@@ -57,6 +57,7 @@ const ALLOWED_CSS_PROPERTIES: Array<keyof StyleSheetProperties> = [
   'flexWrap',
   'gap',
   'height',
+  'width',
   'justifyContent',
   'left',
   'margin',
@@ -152,6 +153,8 @@ const ALLOWED_CSS_PROPERTIES: Array<keyof StyleSheetProperties> = [
 
 const DISPLAY_VALUES = ['flex', 'none'];
 
+const BORDERSTYLE_VALUES = ['solid', 'dotted', 'dashed'];
+
 function omit<T extends object>(obj: T, ...values: (keyof T)[]): Partial<T> {
   const newObject = Object.assign({}, obj);
   for (const key of values) {
@@ -173,6 +176,9 @@ const processValue = (
   if (value.includes('inherit')) return undefined;
   if (value === 'px') return undefined;
   if (key === 'display' && !DISPLAY_VALUES.includes(value)) return undefined;
+
+  if (key === 'borderStyle' && !BORDERSTYLE_VALUES.includes(value))
+    return undefined;
 
   if (key === 'maxWidth' && value === 'none') {
     return '100%';

@@ -1,5 +1,29 @@
 # Builder.io Svelte SDK Changelog (@builder.io/sdk-svelte)
 
+## 1.0.8
+
+### Patch Changes
+
+- b659b6f: Fix: usage of `Blocks` in custom components not setting `BlocksWrapper` correctly.
+
+## 1.0.6
+
+### Patch Changes
+
+- 9b873cd: Feature: allow passing `search` param (of type `URLSearchParams | string | object`) to `isPreviewing` and `isEditing` helpers. This allows users to rely on this function in SSR environments to determine whether the current request is a preview or edit request.
+
+## 1.0.4
+
+### Patch Changes
+
+- 4528969: move `/edge`, `/node` and `/browser` sub-path exports to `/bundle/edge`, `/bundle/node` and `/bundle/browser`
+
+## 1.0.3
+
+### Patch Changes
+
+- a730741: fix `userAttributes` types in `GetContentOptions`
+
 ## 1.0.2
 
 ### Patch Changes
