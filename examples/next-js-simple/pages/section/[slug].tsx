@@ -6,6 +6,8 @@ import DefaultErrorPage from 'next/error'
 import Head from 'next/head'
 // loading widgets dynamically to reduce bundle size, will only be included in bundle when is used in the content
 import '@builder.io/widgets/dist/lib/builder-widgets-async'
+import { HeroWithChildren } from '@components/hero/Hero'
+
 
 export async function getStaticProps({
   params,
@@ -13,11 +15,11 @@ export async function getStaticProps({
 
   const articleData =
     (await builder
-      .get('section-model-blog', {
+      .get('post', {
         query: {
             'data.slug': params?.slug
         },
-        enrich: true
+        enrich: true,
       }).toPromise()) || null
 
     console.log('hello article: ',articleData);
@@ -34,7 +36,7 @@ export async function getStaticProps({
 }
 
 export async function getStaticPaths() {
-  const articles = await builder.getAll('section-model-blog', {
+  const articles = await builder.getAll('post', {
     options: { noTargeting: true },
     omit: 'data.blocks',
   })
@@ -67,7 +69,8 @@ export default function Page({
         <DefaultErrorPage statusCode={404} />
       ) : (
         <>  
-            <BuilderContent model="section-model-blog" options={{includeRefs: true}}>
+
+            <BuilderContent model="post" options={{includeRefs: true}}>
                 {(data, loading, fullContent) => {
                     console.log('DATA: ', data)
                     /*use your data here within your custom component*/
@@ -75,12 +78,12 @@ export default function Page({
                     <>
                         <h1>{data?.header}</h1>
                         <div>By: {data?.author?.value?.data?.name}</div>
-                        <BuilderComponent content={articleData} model="section-model-blog" />
+                        <BuilderComponent content={articleData} model="post" />
                     </>
                     );
                 }}
             </BuilderContent>
-            
+          
             {/* <BuilderComponent model="section-model-blog" content={articleData} /> */}
         </>
       )}

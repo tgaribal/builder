@@ -23,9 +23,9 @@ export async function getStaticProps({
   const locale = 'Default';
   const page =
     (await builder
-      .get("pdp", {
+      .get("page", {
       userAttributes: {
-          urlPath: '/',
+        urlPath: '/' + (params?.page?.join('/') || ''),
         },
       options: {
         enrich: true,
@@ -46,7 +46,7 @@ export async function getStaticProps({
   }
 }
 export async function getStaticPaths() {
-  const pages = await builder.getAll('pdp', {
+  const pages = await builder.getAll('page', {
     options: { noTargeting: true },
     fields: 'data.url',
   })
@@ -80,6 +80,9 @@ export default function Page({
     builder.trackConversion(99);
     builder.track('some-other-event', { meta: { productId: 'abc123', somethingElse: true }})
   }
+  console.log("HELP EDITING: ", Builder.isEditing)
+  console.log("HELP PREVIEWING: ", Builder.isPreviewing)
+  console.log("HELP BOTH: ", Builder.isEditing || Builder.isPreviewing)
   return (
     <>
       <Head>
@@ -90,18 +93,14 @@ export default function Page({
         <DefaultErrorPage statusCode={404} />
       ) : (
         <>
-      <BuilderContent model="pdp">
+      <BuilderContent 
+      model="page"
+      content={page}>
         {(data, loading, content) => {
             return(<BuilderComponent 
               model="pdp" 
               locale={locale} 
               content={content}
-              // context={{baseUrl: 'http://localhost', addToCart}}
-              // options={{enrich: true}}
-              // contentLoaded={(data, something) => {
-              //   console.log('PAGE in loaded: ', something)
-              // }}
-              // data={{user: 'tim', loggedIn: true}} />
               />)
 }}</BuilderContent>
       </>
