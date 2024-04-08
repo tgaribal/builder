@@ -15,6 +15,7 @@ export const ExampleWithChildren = (props) => {
   )
  };
 
+ let firstChild = 'something';
  Builder.registerComponent(withChildren(ExampleWithChildren), {
     name: "ProductBox",
     inputs: [
@@ -36,6 +37,57 @@ export const ExampleWithChildren = (props) => {
         hideFromUI: true,
         defaultValue: [],
       },
+      {
+        name: 'siblings',
+        type: 'object',
+        // keysHelp/erText: 'hey this is something',
+        folded: true,
+        onChange: (options) => {
+          console.log('OPTIONS: ', options.get('siblings'));
+          firstChild = options.get('siblings').get('firstChild').get('name')
+          console.log('FIRST: ', firstChild)
+        },
+        subFields: [
+          {
+            name: 'firstChild',
+            subFields: [
+              {
+                name: 'name',
+                type: 'string',
+                required: true,
+              },
+              {
+                name: 'age',
+                type: 'number',
+              },
+              {
+                name: 'location',
+                type: 'string',
+              },
+            ],
+          },
+          {
+            name: 'secondChild',
+            type: 'object',
+            subFields: [
+              {
+                name: 'name',
+                type: 'string',
+                defaultValue: firstChild,
+                required: true
+              },
+              {
+                name: 'age',
+                type: 'number',
+              },
+              {
+                name: 'location',
+                type: 'string',
+              },
+            ],
+          },
+        ],
+  }
     ],
  })
 
@@ -77,3 +129,4 @@ export const ExampleWithChildren = (props) => {
 //             },
 //           },
 //         },
+
