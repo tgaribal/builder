@@ -35,9 +35,9 @@ function Hero({ maxWidth, children, eyebrow }: Props) {
 	);
 }
 
-export const HeroWithChildren = withChildren(Hero);
+// export const HeroWithChildren = withChildren(Hero);
 
-Builder.registerComponent(HeroWithChildren, {
+Builder.registerComponent(Hero, {
 	name: "Hero",
 	inputs: [
 	  {
@@ -65,11 +65,11 @@ Builder.registerComponent(HeroWithChildren, {
 		defaultValue:
 		  "Bring blockchain to the people. Solana supports experiences for power users, new consumers, and everyone in between.",
 	  },
-	//   {
-	// 	name: "buttons",
-	// 	type: "list",
-	// 	subFields: ButtonConfig.inputs,
-	//   },
+	// //   {
+	// // 	name: "buttons",
+	// // 	type: "list",
+	// // 	subFields: ButtonConfig.inputs,
+	// //   },
 	  {
 		name: "centered",
 		type: "boolean",
@@ -79,7 +79,7 @@ Builder.registerComponent(HeroWithChildren, {
 	  {
 		name: "image",
 		type: "object",
-		localized: true,
+		// localized: true,
 		subFields: [
 		  {
 			name: "src",
@@ -110,7 +110,7 @@ Builder.registerComponent(HeroWithChildren, {
 	  {
 		name: "rightImage",
 		type: "object",
-		localized: true,
+		// localized: true,
 		subFields: [
 		  {
 			name: "src",
@@ -129,7 +129,7 @@ Builder.registerComponent(HeroWithChildren, {
 	  {
 		name: "leftImage",
 		type: "object",
-		localized: true,
+		// localized: true,
 		subFields: [
 		  {
 			name: "src",
