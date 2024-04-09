@@ -40,7 +40,8 @@ const REGISTERED_COMPONENTS = [
 ];
 
 // TODO: enter your public API key
-const BUILDER_PUBLIC_API_KEY = 'f1a790f8c3204b3b8c5c1795aeac4660'; // ggignore
+// const BUILDER_PUBLIC_API_KEY = 'f1a790f8c3204b3b8c5c1795aeac4660'; // ggignore
+const BUILDER_PUBLIC_API_KEY = '8f77601fe86b4125b1b1eb3b86d92d8b'
 
 const route = useRoute();
 
