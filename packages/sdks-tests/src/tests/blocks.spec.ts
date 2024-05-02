@@ -3,8 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { VIDEO_CDN_URL } from '../specs/video.js';
-import type { ExpectedStyles } from './helpers.js';
-import { EXCLUDE_RN, isRNSDK, test } from './helpers.js';
+import type { ExpectedStyles } from './helpers/index.js';
+import { EXCLUDE_RN, excludeTestFor, isRNSDK, test } from './helpers/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,6 +62,7 @@ test.describe('Blocks', () => {
    * TO-DO: re-enable it once we have a way to mock network requests.
    */
   test.skip('Image', async ({ page }) => {
+    test.fail(excludeTestFor({ angular: true }));
     await page.goto('/image');
 
     const imageLocator = page.locator('img');
@@ -110,6 +111,7 @@ test.describe('Blocks', () => {
 
   test.describe('Video', () => {
     test('video render and styles', async ({ page }) => {
+      test.fail(excludeTestFor({ angular: true }), 'Attributes are not spread out in Video');
       test.skip(isRNSDK);
       const mockVideoPath = path.join(__dirname, '..', 'mocks', 'video.mp4');
       const mockVideoBuffer = fs.readFileSync(mockVideoPath);
@@ -198,6 +200,7 @@ test.describe('Blocks', () => {
       const videoContainers = page.locator('.some-class');
       const noOfVideos = await page.locator('.builder-video').count();
 
+      await expect(noOfVideos).toBeGreaterThanOrEqual(1);
       await expect(videoContainers).toHaveCount(noOfVideos);
 
       for (let i = 0; i < noOfVideos; i++) {
@@ -285,6 +288,9 @@ test.describe('Blocks', () => {
       test.skip(isRNSDK && sizeName !== 'mobile');
 
       test.describe(sizeName, () => {
+        if (sizeName === 'mobile' || sizeName === 'tablet') {
+          test.fail(excludeTestFor({ angular: true }));
+        }
         for (const [columnType, styles] of Object.entries(expected)) {
           test(columnType, async ({ page }) => {
             await page.setViewportSize(size);

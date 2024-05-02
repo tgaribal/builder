@@ -140,4 +140,14 @@ export interface GetContentOptions {
    * draft mode and un-archived. Default is false.
    */
   includeUnpublished?: boolean;
+
+  /**
+   * Optional override of the `fetch` function. (Defaults to global `fetch`)
+   */
+  fetch?: (input: string, init?: object) => Promise<any>;
+
+  /**
+   * Optional fetch options to be passed as the second argument to the `fetch` function.
+   */
+  fetchOptions?: object;
 }

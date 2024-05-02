@@ -39,6 +39,8 @@ import type {
   BuilderComponentStateChange,
   ContentProps,
 } from '../content.types.js';
+import { getWrapperClassName } from './styles.helpers.js';
+import DynamicDiv from '../../dynamic-div.lite.jsx';
 
 useMetadata({
   qwik: {
@@ -54,6 +56,7 @@ type BuilderEditorProps = Omit<
   | 'isSsrAbTest'
   | 'blocksWrapper'
   | 'blocksWrapperProps'
+  | 'isNestedRender'
 > & {
   builderContextSignal: Signal<BuilderContextInterface>;
   setBuilderContextSignal?: (signal: any) => any;
@@ -66,8 +69,6 @@ export default function EnableEditor(props: BuilderEditorProps) {
    */
   const elementRef = useRef<HTMLDivElement>();
   const state = useStore({
-    forceReRenderCount: 0,
-    firstRender: true,
     mergeNewRootState(newData: Dictionary<any>) {
       const combinedState = {
         ...props.builderContextSignal.value.rootState,
@@ -113,12 +114,14 @@ export default function EnableEditor(props: BuilderEditorProps) {
         },
       });
     },
-    lastUpdated: 0,
-    shouldSendResetCookie: false,
+    get showContentProps() {
+      return props.showContent ? {} : { hidden: true, 'aria-hidden': true };
+    },
     ContentWrapper: useTarget({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       reactNative: props.contentWrapper || ScrollView,
+      angular: props.contentWrapper || DynamicDiv,
       default: props.contentWrapper || 'div',
     }),
     processMessage(event: MessageEvent): void {
@@ -136,7 +139,6 @@ export default function EnableEditor(props: BuilderEditorProps) {
             }
             if (breakpoints) {
               state.mergeNewContent({ meta: { breakpoints } });
-              state.forceReRenderCount = state.forceReRenderCount + 1; // This is a hack to force Qwik to re-render.
             }
           },
           animation: (animation) => {
@@ -144,7 +146,6 @@ export default function EnableEditor(props: BuilderEditorProps) {
           },
           contentUpdate: (newContent) => {
             state.mergeNewContent(newContent);
-            state.forceReRenderCount = state.forceReRenderCount + 1; // This is a hack to force Qwik to re-render.
           },
         },
       })(event);
@@ -159,10 +160,15 @@ export default function EnableEditor(props: BuilderEditorProps) {
           localState: undefined,
           rootState: props.builderContextSignal.value.rootState,
           rootSetState: props.builderContextSignal.value.rootSetState,
+          /**
+           * We don't want to cache the result of the JS code, since it's arbitrary side effect code.
+           */
+          enableCache: false,
         });
       }
     },
     httpReqsData: {} as { [key: string]: boolean },
+    httpReqsPending: {} as { [key: string]: boolean },
 
     clicked: false,
 
@@ -187,41 +193,45 @@ export default function EnableEditor(props: BuilderEditorProps) {
       }
     },
 
-    evalExpression(expression: string) {
-      return expression.replace(/{{([^}]+)}}/g, (_match, group) =>
-        evaluate({
-          code: group,
-          context: props.context || {},
-          localState: undefined,
-          rootState: props.builderContextSignal.value.rootState,
-          rootSetState: props.builderContextSignal.value.rootSetState,
-        })
-      );
-    },
-    handleRequest({ url, key }: { key: string; url: string }) {
-      fetch(url)
-        .then((response) => response.json())
-        .then((json) => {
-          const newState = {
-            ...props.builderContextSignal.value.rootState,
-            [key]: json,
-          };
-          props.builderContextSignal.value.rootSetState?.(newState);
-          state.httpReqsData[key] = true;
-        })
-        .catch((err) => {
-          console.error('error fetching dynamic data', url, err);
-        });
-    },
     runHttpRequests() {
       const requests: { [key: string]: string } =
         props.builderContextSignal.value.content?.data?.httpRequests ?? {};
 
       Object.entries(requests).forEach(([key, url]) => {
-        if (url && (!state.httpReqsData[key] || isEditing())) {
-          const evaluatedUrl = state.evalExpression(url);
-          state.handleRequest({ url: evaluatedUrl, key });
-        }
+        if (!url) return;
+
+        // request already in progress
+        if (state.httpReqsPending[key]) return;
+
+        // request already completed, and not in edit mode
+        if (state.httpReqsData[key] && !isEditing()) return;
+
+        state.httpReqsPending[key] = true;
+        const evaluatedUrl = url.replace(/{{([^}]+)}}/g, (_match, group) =>
+          String(
+            evaluate({
+              code: group,
+              context: props.context || {},
+              localState: undefined,
+              rootState: props.builderContextSignal.value.rootState,
+              rootSetState: props.builderContextSignal.value.rootSetState,
+              enableCache: true,
+            })
+          )
+        );
+
+        fetch(evaluatedUrl)
+          .then((response) => response.json())
+          .then((json) => {
+            state.mergeNewRootState({ [key]: json });
+            state.httpReqsData[key] = true;
+          })
+          .catch((err) => {
+            console.error('error fetching dynamic data', url, err);
+          })
+          .finally(() => {
+            state.httpReqsPending[key] = false;
+          });
       });
     },
     emitStateUpdate() {
@@ -256,17 +266,6 @@ export default function EnableEditor(props: BuilderEditorProps) {
     });
   }, [props.content]);
 
-  onUpdate(() => {
-    useTarget({
-      rsc: () => {
-        if (isBrowser()) {
-          window.removeEventListener('message', state.processMessage);
-          window.addEventListener('message', state.processMessage);
-        }
-      },
-    });
-  }, [state.shouldSendResetCookie]);
-
   onUnMount(() => {
     if (isBrowser()) {
       window.removeEventListener('message', state.processMessage);
@@ -280,7 +279,6 @@ export default function EnableEditor(props: BuilderEditorProps) {
   onEvent(
     'initeditingbldr',
     () => {
-      state.forceReRenderCount = state.forceReRenderCount + 1;
       window.addEventListener('message', state.processMessage);
 
       registerInsertMenu();
@@ -396,8 +394,11 @@ export default function EnableEditor(props: BuilderEditorProps) {
         });
       }
 
-      // override normal content in preview mode
-      if (isPreviewing()) {
+      /**
+       * Override normal content in preview mode.
+       * We ignore this when editing, since the edited content is already being sent from the editor via post messages.
+       */
+      if (isPreviewing() && !isEditing()) {
         useTarget({
           rsc: () => {},
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -474,14 +475,13 @@ export default function EnableEditor(props: BuilderEditorProps) {
           },
           default: {},
         })}
-        key={state.forceReRenderCount}
         ref={elementRef}
         onClick={(event: any) => state.onClick(event)}
         builder-content-id={props.builderContextSignal.value.content?.id}
         builder-model={props.model}
-        className={`variant-${
+        className={getWrapperClassName(
           props.content?.testVariationId || props.content?.id
-        }`}
+        )}
         {...useTarget({
           reactNative: {
             // currently, we can't set the actual ID here.
@@ -490,7 +490,7 @@ export default function EnableEditor(props: BuilderEditorProps) {
           },
           default: {},
         })}
-        {...(props.showContent ? {} : { hidden: true, 'aria-hidden': true })}
+        {...state.showContentProps}
         {...props.contentWrapperProps}
       >
         {props.children}

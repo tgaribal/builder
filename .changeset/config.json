@@ -7,13 +7,21 @@
       "@builder.io/sdk-react",
       "@builder.io/sdk-vue",
       "@builder.io/sdk-svelte",
-      "@builder.io/sdk-react-native"
+      "@builder.io/sdk-react-native",
+      "@builder.io/sdk-solid"
     ],
-    ["@builder.io/sdk-react-nextjs", "@builder.io/sdk-qwik", "@builder.io/sdk-solid"]
+    ["@builder.io/sdk-react-nextjs", "@builder.io/sdk-qwik"]
   ],
   "fixed": [],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@e2e/*", "@e2e/gen1-next", "@e2e/gen1-remix", "@e2e/gen1-react"]
+  "ignore": [
+    "@e2e/*",
+    "@e2e/gen1-next",
+    "@e2e/gen1-remix",
+    "@e2e/gen1-react",
+    "@builder.io/sdk-angular",
+    "@e2e/angular"
+  ]
 }

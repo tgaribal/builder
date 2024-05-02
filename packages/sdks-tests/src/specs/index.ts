@@ -4,6 +4,7 @@ import { ANIMATIONS } from './animations.js';
 import { CONTENT as columns } from './columns.js';
 import { CONTENT as contentBindings } from './content-bindings.js';
 import { CONTENT as cssNesting } from './css-nesting.js';
+import { CSS_PROPERTIES } from './css-properties.js';
 import {
   CONTENT as customBreakpoints,
   CONTENT_RESET as customBreakpointsReset,
@@ -11,12 +12,15 @@ import {
 import { CONTENT as dataBindingStyles } from './data-binding-styles.js';
 import { CONTENT as dataBindings } from './data-bindings.js';
 import { DATA_PREVIEW } from './data-preview.js';
+import { DEFAULT_STYLES } from './default-styles.js';
 import { DUPLICATE_ATTRIBUTES } from './duplicate-attributes.js';
 import { EDITING_STYLES } from './editing-styles.js';
 import { CONTENT as elementEvents } from './element-events.js';
 import { EXTERNAL_DATA } from './external-data.js';
 import { FORM } from './form.js';
 import { CONTENT as homepage } from './homepage.js';
+import { HOVER_ANIMATION } from './hover-animation.js';
+import { HTTP_REQUESTS } from './http-requests.js';
 import { CONTENT as image } from './image.js';
 import { INPUT_DEFAULT_VALUE } from './input-default-value.js';
 import { JS_CODE_CONTENT } from './js-code.js';
@@ -35,6 +39,7 @@ import { CONTENT as symbolBindings } from './symbol-bindings.js';
 import { CONTENT as symbolWithInputBinding } from './symbol-with-input-binding.js';
 import { CONTENT as symbolWithLocale } from './symbol-with-locale.js';
 import { CONTENT_WITHOUT_SYMBOLS, CONTENT as symbols } from './symbols.js';
+import { TABS } from './tabs.js';
 import { CONTENT as textBlock } from './text-block.js';
 import type { BuilderContent } from './types.js';
 import { CONTENT as video } from './video.js';
@@ -66,6 +71,7 @@ const PAGES = {
   '/data-binding-styles': dataBindingStyles,
   '/ab-test': abTest,
   '/ab-test-interactive': AB_TEST_INTERACTIVE,
+  '/http-requests': HTTP_REQUESTS,
   '/symbol-ab-test': symbolAbTest,
   '/custom-breakpoints': customBreakpoints,
   '/reactive-state': reactiveState,
@@ -91,6 +97,10 @@ const PAGES = {
   '/animations': ANIMATIONS,
   '/data-preview': DATA_PREVIEW,
   '/form': FORM,
+  '/default-styles': DEFAULT_STYLES,
+  '/css-properties': CSS_PROPERTIES,
+  '/hover-animation': HOVER_ANIMATION,
+  '/tabs': TABS,
 } as const;
 
 const apiVersionPathToProp = {

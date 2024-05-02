@@ -4,7 +4,6 @@ import {
   Show,
   onMount,
   useMetadata,
-  useState,
   useStore,
   useTarget,
 } from '@builder.io/mitosis';
@@ -12,18 +11,23 @@ import type {
   BuilderContextInterface,
   RegisteredComponents,
 } from '../../context/types.js';
-import { extractTextStyles } from '../../functions/extract-text-styles.js';
 import { getBlockComponentOptions } from '../../functions/get-block-component-options.js';
 import { getProcessedBlock } from '../../functions/get-processed-block.js';
-import { getStyle } from '../../functions/get-style.js';
 import type { BuilderBlock } from '../../types/builder-block.js';
 import { bindAnimations } from './animator.js';
-import { getComponent, getRepeatItemData } from './block.helpers.js';
+import {
+  getComponent,
+  getInheritedStyles,
+  getRepeatItemData,
+  shouldPassLinkComponent,
+  shouldPassRegisteredComponents,
+} from './block.helpers.js';
 import BlockStyles from './components/block-styles.lite.jsx';
 import BlockWrapper from './components/block-wrapper.lite.jsx';
 import type { ComponentProps } from './components/component-ref/component-ref.helpers.js';
 import ComponentRef from './components/component-ref/component-ref.lite.jsx';
 import RepeatedBlock from './components/repeated-block.lite.jsx';
+import DynamicDiv from '../dynamic-div.lite.jsx';
 
 export type BlockProps = {
   block: BuilderBlock;
@@ -35,7 +39,7 @@ export type BlockProps = {
 useMetadata({
   elementTag: 'state.Tag',
   options: {
-    vue3: {
+    vue: {
       asyncComponentImports: true,
     },
   },
@@ -99,6 +103,7 @@ export default function Block(props: BlockProps) {
          * eslint-disable-next-line @typescript-eslint/ban-ts-comment
          * @ts-ignore */
         reactNative: View,
+        angular: DynamicDiv,
         default: props.block.tagName || 'div',
       });
     },
@@ -138,19 +143,23 @@ export default function Block(props: BlockProps) {
         componentOptions: {
           ...getBlockComponentOptions(state.processedBlock),
           builderContext: props.context,
-          ...(state.blockComponent?.name === 'Core:Button' ||
-          state.blockComponent?.name === 'Symbol' ||
-          state.blockComponent?.name === 'Columns' ||
-          state.blockComponent?.name === 'Form:Form'
+          ...(shouldPassLinkComponent(state.blockComponent)
             ? { builderLinkComponent: props.linkComponent }
             : {}),
-          ...(state.blockComponent?.name === 'Symbol' ||
-          state.blockComponent?.name === 'Columns' ||
-          state.blockComponent?.name === 'Form:Form'
+          ...(shouldPassRegisteredComponents(state.blockComponent)
             ? { builderComponents: props.registeredComponents }
             : {}),
         },
-        context: childrenContext,
+        context: useTarget({
+          reactNative: {
+            ...props.context.value,
+            inheritedStyles: getInheritedStyles({
+              block: state.processedBlock,
+              context: props.context.value,
+            }),
+          } as any,
+          default: props.context,
+        }),
         linkComponent: props.linkComponent,
         registeredComponents: props.registeredComponents,
         builderBlock: state.processedBlock,
@@ -160,33 +169,15 @@ export default function Block(props: BlockProps) {
     },
   });
 
-  const [childrenContext] = useState(
-    useTarget({
-      reactNative: {
-        ...props.context.value,
-        inheritedStyles: extractTextStyles(
-          getStyle({
-            block: state.processedBlock,
-            context: props.context.value,
-          }) || {}
-        ),
-      },
-      default: props.context.value,
-    }),
-    { reactive: true }
-  );
-
   onMount(() => {
     const blockId = state.processedBlock.id;
     const animations = state.processedBlock.animations;
     if (animations && blockId) {
       bindAnimations(
-        animations
-          .filter((item) => item.trigger !== 'hover')
-          .map((animation) => ({
-            ...animation,
-            elementId: blockId,
-          }))
+        animations.map((animation) => ({
+          ...animation,
+          elementId: blockId,
+        }))
       );
     }
   });
@@ -250,7 +241,16 @@ export default function Block(props: BlockProps) {
                 <Block
                   key={child.id}
                   block={child}
-                  context={childrenContext}
+                  context={useTarget({
+                    reactNative: {
+                      ...props.context.value,
+                      inheritedStyles: getInheritedStyles({
+                        block: state.processedBlock,
+                        context: props.context.value,
+                      }),
+                    } as any,
+                    default: props.context,
+                  })}
                   registeredComponents={props.registeredComponents}
                   linkComponent={props.linkComponent}
                 />

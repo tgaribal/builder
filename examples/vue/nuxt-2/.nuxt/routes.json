@@ -1,0 +1,9 @@
+[
+  {
+    "name": "page",
+    "path": "/:page?",
+    "component": "/Users/timgaribaldi/Desktop/builder-repos/builder/examples/vue/nuxt-2/pages/_page.vue",
+    "chunkName": "pages/_page",
+    "_name": "_ebecda14"
+  }
+]

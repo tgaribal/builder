@@ -1,5 +1,104 @@
 # Builder.io Qwik SDK Changelog (@builder.io/sdk-qwik)
 
+## 0.14.21
+
+### Patch Changes
+
+- 70fccea: Fix: `query` option correctly flattens mongodb queries
+
+## 0.14.20
+
+### Patch Changes
+
+- af84d1e: Fix: make `initializeNodeRuntime` argument optional
+
+## 0.14.19
+
+### Patch Changes
+
+- bd21dcf: Fix: improve NodeJS runtime performance by reusing the same IsolatedVM Isolate instance for all data bindings. Add the ability to provide arguments to configure the isolate in `initializeNodeRuntime` via an `ivmIsolateOptions` parameter.
+
+## 0.14.18
+
+### Patch Changes
+
+- 84cd444: feature: add the Builder Tabs block (ported from gen1 widgets).
+
+## 0.14.17
+
+### Patch Changes
+
+- 78dee25: Fix: remove redundant warning for evaluation of empty code blocks.
+
+## 0.14.16
+
+### Patch Changes
+
+- f3c5ff3: Fix: `isPreviewing` logic on the server, and make usage of `isEditing` unnecessary.
+- 46bd611: Feature: add support for hover animations.
+
+## 0.14.15
+
+### Patch Changes
+
+- 7bad8d9: Fix: better error-logging for `isolated-vm` import.
+- d8e08ae: Fix: `fetchOneEntry` prop types of `fetch` and `fetchOptions`
+
+## 0.14.14
+
+### Patch Changes
+
+- a309a4f: Fix: add missing `key` prop to `Select` block's `option`
+
+## 0.14.13
+
+### Patch Changes
+
+- cde7c61: feat: export `BuilderContext` from sdks
+
+## 0.14.12
+
+### Patch Changes
+
+- 2ed2cb8: Fix: data connections making multiple unnecessary API calls
+
+## 0.14.11
+
+### Patch Changes
+
+- 35fc152: Fix: add `data-id` attributes to all inline `script` and `style` tags
+
+## 0.14.10
+
+### Patch Changes
+
+- 0ffbc58: Feature: add `fetch` and `fetchOptions` arguments to `fetchEntries` and `fetchOneEntry`.
+
+## 0.14.9
+
+### Patch Changes
+
+- 2d5a016: Fix: remove forced re-render of `Content` internals.
+
+## 0.14.8
+
+### Patch Changes
+
+- 2c93c95: Fix: Symbol styles overriding subsequent content styles.
+
+## 0.14.7
+
+### Patch Changes
+
+- c880ef5: Fix: data state reactivity for nested components
+- c880ef5: Feature: add Cache layer for dynamic binding evaluator
+
+## 0.14.6
+
+### Patch Changes
+
+- b81e35a: fix: Image block `role='presentation'` set when altText prop is not provided.
+
 ## 0.14.5
 
 ### Patch Changes
