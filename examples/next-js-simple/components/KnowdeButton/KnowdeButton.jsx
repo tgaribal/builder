@@ -31,14 +31,28 @@ export const ExampleWithChildren = (props) => {
       </div>
   )
  };
+//  Builder.register("editorSettings", { });
 
- Builder.register("insertMenu", {
-  name: "Basics",
-  items:[
-    { name: 'ProductsCollection', friendlyName: 'something new'},
-    { name: 'Text' }
-  ] 
-});
+// Builder.register('insertMenu', {
+//   name: 'Forms',
+//   items: [
+//     { name: 'Form:Form' },
+//     { name: 'Form:TextArea' },
+//     { name: 'Form:Select' },
+//     { name: 'Form:Label' },
+//     { name: 'Form:SubmitButton' },
+//     { name: 'Form:Input' },
+//   ],
+// })
+
+// Builder.register('insertMenu', {
+//   name: 'Another',
+//   items: [
+//     { name: 'Columns' },
+//     { name: 'Text' },
+//     { name: 'Core:Button' },
+//   ],
+// })
  Builder.registerComponent(withChildren(ExampleWithChildren), {
     name: "ProductsCollection",
     friendlyName: 'something new',

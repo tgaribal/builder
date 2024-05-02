@@ -26,13 +26,13 @@ export async function getStaticProps({
       .get("page", {
       userAttributes: {
         urlPath: '/' + (params?.page?.join('/') || ''),
-        },
+      },
       options: {
         enrich: true,
       }
       }).toPromise()) || null
 
-      console.log("PAGE: ", page)
+      // console.log("PAGE: ", page)
 
   return {
     props: {
@@ -53,7 +53,7 @@ export async function getStaticPaths() {
   // const paths = pages.map((page) => `${page.data?.url}`);
   // console.log('PATHS: ', paths)
   return {
-    paths: [], //pages.map((page) => `{${page.data?.url}}`),
+    paths: pages.map((page) => `${page.data?.url}`),
     fallback: true,
   }
 }
@@ -65,8 +65,35 @@ export default function Page({
   const router = useRouter()
   const isPreviewingInBuilder = useIsPreviewing()
   const show404 = !page && !isPreviewingInBuilder
-  // const fetch = require("node-fetch");
-  // const fs = require('fs');
+  console.log('PAGE TWOTWOTWO: ', page)
+
+// function uploadImage(file: any) {
+//   // Read the binary data from the image file
+//   var bitmap = fs.readFileSync(file);
+//   // Send a POST request to Builder Upload API 
+//   // which includes the name of the file.
+//   // Include the binary data as the request body and needed headers
+//   fetch("https://builder.io/api/v1/upload?name=MyFileName.pdf&folder=MyContent", {
+//     method: "POST",
+//     body: bitmap, // binary data of the image
+//     headers: {
+//       // header with private key
+//      "Authorization": "bpk-4a622059206049dda7dee3fb9b324611",
+//      // header with the type of the image
+//      "Content-Type": "image/jpeg" 
+//     },
+//  }).then(res => {
+//       return res.json(); // Parse the response JSON
+//  }).then(resp => {
+//      console.log(resp); // Log the response JSON
+//  }).catch((e) => console.log(e)); // log errors
+// }
+// uploadImage("../lib/assets/download.png")
+
+// Call the `upload_image()` function with the 
+// path to the image file as the argument
+
+  
   if (router.isFallback) {
     return <h1>Loading...</h1>
   }
@@ -93,16 +120,20 @@ export default function Page({
         <DefaultErrorPage statusCode={404} />
       ) : (
         <>
-      <BuilderContent 
-      model="page"
-      content={page}>
-        {(data, loading, content) => {
-            return(<BuilderComponent 
-              model="pdp" 
+        <BuilderComponent 
+              model="page" 
               locale={locale} 
-              content={content}
-              />)
-}}</BuilderContent>
+              content={page}
+              // contentLoaded={(data, content) => {
+              //   console.log('OBJECT: ', {
+              //      contentId: content?.id,
+              //      contentName: content?.name,
+              //      testVariationId: content?.testVariationId,
+              //      // Make sure to edit the variant name in Builder with a descriptive name
+              //      testVariationName: content?.testVariationName
+              //     })
+              //   }}
+              />
       </>
       )}
     </>

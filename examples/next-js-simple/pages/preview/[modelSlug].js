@@ -3,7 +3,8 @@ import { BuilderComponent, builder } from '@builder.io/react';
 // import '@builder.io/widgets/dist/lib/builder-widgets-async'
 
 export default function Symbol() {
+  
 
-  return <BuilderComponent model="symbol" options={{enrich: true}} />
+  return <BuilderComponent model={modelSlug} options={{enrich: true}} />
 
 }

@@ -2,15 +2,17 @@ import { Builder, withChildren, BuilderBlocks  } from '@builder.io/react';
 import Link from 'next/link';
 
 export const ExampleWithChildren = (props) => {
-  
+  console.log('PROPS PROPS: ', props);
+  console.log('PROPS CHILDREN: ', props.children)
   return (
     <div>
         <h2>THIS IS TEXT</h2>
-        <BuilderBlocks
+        {/* <BuilderBlocks
             child
             parentElementId={props.builderBlock && props.builderBlock.id}
             blocks={props.after}
-            dataPath={`component.options.after`} />
+            dataPath={`component.options.after`} /> */}
+            {props.children}
     </div>
   )
  };
