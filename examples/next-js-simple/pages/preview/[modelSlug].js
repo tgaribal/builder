@@ -1,10 +1,25 @@
-import { BuilderComponent, builder } from '@builder.io/react';
-// import builderConfig from '@config/builder';
-// import '@builder.io/widgets/dist/lib/builder-widgets-async'
+import { builder, BuilderComponent } from '@builder.io/react';
+import { useRouter } from 'next/router'
+import { useState, useEffect } from 'react';
 
-export default function Symbol() {
-  
+export default function Edit(props) {
+  const router = useRouter();
+  const slug = router.query.modelSlug;
+  console.log('SLUG: ', slug, props)
+  // useEffect
+  const [content, setContent] = useState(null);
 
-  return <BuilderComponent model={modelSlug} options={{enrich: true}} />
+  useEffect(() => {
+    builder.get("figma-imports", {
+        enrich: true
+      })
+      .toPromise()
+      .then((data) => {
+        console.log('HELL: DATA: ', data)
+        setContent(data)
+  });
+  }, []);
+
+  return (<BuilderComponent model="figma-imports" content={content} />)
 
 }

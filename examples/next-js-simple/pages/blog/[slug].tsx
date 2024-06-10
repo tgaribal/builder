@@ -10,7 +10,7 @@ import * as fs from 'fs';
 import { RouteMatcher } from 'next/dist/server/future/route-matchers/route-matcher'
 
 // builder.init(builderConfig.apiKey)
-// builder.init('dfd7048cf175429cb138b8ae9a1d66e9');
+builder.init('271bdcf584e24ca896dede7a91dfb1cb');
 
 export async function getStaticProps({
   params,
@@ -20,27 +20,20 @@ export async function getStaticProps({
     (await builder
       .get('article', {
         query: {
-            'data.slug': params?.slug
+          'data.slug': params?.slug
         },
         options: {
           enrich: true
-        },
-        enrich: true
+        }
       }).toPromise()) || null
 
       const articleTemplate = 
       (await builder
         .get('blog-template', {
-            userAttributes: {
-              articleType: articleData?.data?.category
-            },
-            options: {
-              enrich: true
-            }
+          options: {
+            enrich: true
+          }
         }).toPromise()) || null
-        
-    console.log('hello article: ',articleData)
-    // console.log('hello template: ', articleTemplate);
 
   return {
     props: {
@@ -55,19 +48,13 @@ export async function getStaticProps({
 }
 
 export async function getStaticPaths() {
-  // console.log('GET STATIC PATHS')
   const articles = await builder.getAll('article', {
-    options: { noTargeting: true, enrich: true }
-    // omit: 'data.blocks',
+    options: { noTargeting: true, enrich: true },
+    omit: 'data.blocks',
   })
-  // articles.forEach(article => {
-  //   console.log('hello')
-  //   console.log('FOR EACH ARTICLE: ', article?.data?.author )
-  // })
-  // console.log('ARTICLES: ', articles)
 
   return {
-    paths: articles.map((article) => `/blog/${article.data?.slug}`),
+    paths: [], //articles.map((article) => `/blog/${article.data?.slug}`),
     fallback: true
   }
 }
@@ -79,8 +66,8 @@ export default function Page({
   const router = useRouter()
   const isPreviewingInBuilder = useIsPreviewing()
   const show404 = !articleData && !isPreviewingInBuilder
-  console.log('hello article: ',articleData?.data)
-  // console.log('hello template: ', articleTemplate);
+  // console.log('hello article: ',articleData?.data)
+  // // console.log('hello template: ', articleTemplate);
   if (router.isFallback) {
     return <h1>Loading...</h1>
   }
@@ -95,15 +82,13 @@ export default function Page({
         <DefaultErrorPage statusCode={404} />
       ) : (
         <>
-          {/* <BuilderComponent model="blog-template" content={articleTemplate} options={{enrich: true}} data={{article: articleData?.data}}/> */}
-          <BuilderContent model="article" content={articleData} options={{query: {'data.slug': router.query.slug}}}>
+          <BuilderContent model="article" content={articleData}>
             {(article, loading, content) => {
-              console.log('here is the stuff:', articleData.data.headline, article.headline)
+              console.log('here is the stuff:', article)
             return(<>
-              <BuilderComponent model="blog-template" content={articleTemplate} />
+              <BuilderComponent model="blog-template" content={articleTemplate} data={{article}} options={{ enrich: true }}/>
             </>)
           }}
-
           </BuilderContent>
         </>
       )}

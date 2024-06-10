@@ -7,10 +7,11 @@ interface MyPageProps {
   searchParams: Record<string, string>;
 }
 
-const apiKey = 'f1a790f8c3204b3b8c5c1795aeac4660';
-
+// const apiKey = 'f1a790f8c3204b3b8c5c1795aeac4660';
+const apiKey = '271bdcf584e24ca896dede7a91dfb1cb';
 export default async function Page(props: MyPageProps) {
   const urlPath = '/' + (props.params?.slug?.join('/') || '');
+  console.log('PROPS: ', props.searchParams)
 
   const content = await fetchOneEntry({
     model: 'page',

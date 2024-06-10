@@ -157,7 +157,7 @@ Builder.registerComponent(Hero, {
 		{
 		  name: "eyebrow",
 		  type: "text",
-		  localized: true,
+		//   localized: true,
 		  defaultValue: "Optional Eyebrow",
 		},
 		{

@@ -14,30 +14,72 @@ import "@components/Slider/Slider"
 import "@components/AsyncComp/AsycnComp"
 import "@components/ProductBox/ProductBox"
 import "@components/abTestComp/AbTestComp";
+import "builder-registry"
+// import { Builder } from '@builder.io/react'
+
+Builder.registerComponent(
+  (props: any) => {
+    if (!props.cloudinaryOptions) {
+      return 'Choose an Image'
+    }
+    return (
+      <img
+        src={props.cloudinaryOptions.url}
+        width={props.cloudinaryOptions.width}
+        height={props.cloudinaryOptions.height}
+      />
+    )
+  },
+  {
+    name: 'CloudinaryImage',
+    image:
+      'https://res.cloudinary.com/cloudinary-marketing/image/upload/v1599098500/creative_source/Logo/Cloud%20Glyph/cloudinary_cloud_glyph_blue_png.png',
+    inputs: [{ 
+      name: 'cloudinaryOptions', 
+      type: 'cloudinaryImageEditor' 
+    }],
+  }
+)
+
 
 export async function getStaticProps({
   params,
 }: GetStaticPropsContext<{ page: string[] }>) {
   console.log("ALL PARAMS: ", params?.page)
 
-  const locale = 'Default';
+  const locale = 'en-US';
   const page =
     (await builder
       .get("page", {
       userAttributes: {
         urlPath: '/' + (params?.page?.join('/') || ''),
+        loggedIn: false,
+        // enrollmentStatus: 'earlyStudent',
+        locale
       },
+      // cachebust: true,
+      // authToken: privateAPIKey,
       options: {
         enrich: true,
       }
       }).toPromise()) || null
 
+    const pageBanner=(await builder
+      .get("page-banner", {
+      userAttributes: {
+        enrollmentStatus: 'earlyStudent'
+      },
+      options: {
+        enrich: true,
+      }
+      }).toPromise()) || null
       // console.log("PAGE: ", page)
 
   return {
     props: {
       page,
-      locale
+      locale,
+      pageBanner
     },
     // Next.js will attempt to re-generate the page:
     // - When a request comes in
@@ -60,7 +102,8 @@ export async function getStaticPaths() {
 
 export default function Page({
   page,
-  locale
+  locale,
+  pageBanner
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter()
   const isPreviewingInBuilder = useIsPreviewing()
@@ -124,6 +167,8 @@ export default function Page({
               model="page" 
               locale={locale} 
               content={page}
+              data={{userName: 'Tim', loggedIn: true, customerStatus: 'newCustomer'}}
+              options={{ enrich: true }}
               // contentLoaded={(data, content) => {
               //   console.log('OBJECT: ', {
               //      contentId: content?.id,

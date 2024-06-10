@@ -20,6 +20,12 @@ export const ExampleWithChildren = (props) => {
  let firstChild = 'something';
  Builder.registerComponent(withChildren(ExampleWithChildren), {
     name: "ProductBox",
+    childRequirements: {
+      message: 'You can only put Buttons, Text, or Headings in a Hero',
+      query: {
+        'component.name': { $in: ['Button', 'Text', 'Heading'] },
+      },
+    },
     inputs: [
       {
         name: "product",

@@ -4,31 +4,21 @@ import Link from 'next/link';
 export const ExampleWithChildren = (props) => {
   console.log('PROPS: ', { props })
   return (
-    <div style={{display: 'flex'}}>
-      <div style={{width: '80%'}}>
+    <>
         <BuilderBlocks
             style={{width: '100%'}}
             child
             parentElementId={props.builderBlock && props.builderBlock.id}
             blocks={props.before}
             dataPath={`component.options.before`} />
-        <h2>THIS IS TEXT</h2>
+        <h2>{props.text}</h2>
         <div>{props.reference?.value?.data?.text}</div>
-      </div>
-      <div style={{display: 'flex', flexDirection: 'column'}}>
         <BuilderBlocks
             child
             parentElementId={props.builderBlock && props.builderBlock.id}
             blocks={props.after}
             dataPath={`component.options.after`} />
-            <div>something else</div>
-            <BuilderBlocks
-            child
-            parentElementId={props.builderBlock && props.builderBlock.id}
-            blocks={props.third}
-            dataPath={`component.options.third`} />
-    </div>
-      </div>
+    </>
   )
  };
 //  Builder.register("editorSettings", { });
@@ -54,13 +44,17 @@ export const ExampleWithChildren = (props) => {
 //   ],
 // })
  Builder.registerComponent(withChildren(ExampleWithChildren), {
-    name: "ProductsCollection",
-    friendlyName: 'something new',
+    name: "With Children",
+    // friendlyName: 'something new',
     image: 'https://cdn.corpemf.com/www/builder-io/section.png',
     inputs: [
       {
         name: 'text',
         type: 'text'
+      },
+      {
+        name: 'testing',
+        type: 'number'
       },
       {
         name: 'style',
