@@ -21,7 +21,11 @@ import { FORM } from './form.js';
 import { CONTENT as homepage } from './homepage.js';
 import { HOVER_ANIMATION } from './hover-animation.js';
 import { HTTP_REQUESTS } from './http-requests.js';
-import { CONTENT as image } from './image.js';
+import {
+  CONTENT as image,
+  CONTENT_2 as imageHighPriority,
+  CONTENT_3 as imageNoWebp,
+} from './image.js';
 import { INPUT_DEFAULT_VALUE } from './input-default-value.js';
 import { JS_CODE_CONTENT } from './js-code.js';
 import { JS_CONTENT_IS_BROWSER } from './js-content-is-browser.js';
@@ -46,6 +50,9 @@ import { CONTENT as video } from './video.js';
 import { CUSTOM_COMPONENTS } from './custom-components.js';
 import { BASIC_STYLES } from './basic-styles.js';
 import { ACCORDION, ACCORDION_GRID, ACCORDION_ONE_AT_A_TIME } from './accordion.js';
+import { SYMBOL_TRACKING } from './symbol-tracking.js';
+import { COLUMNS_WITH_DIFFERENT_WIDTHS } from './columns-with-different-widths.js';
+import { CUSTOM_COMPONENTS_MODELS_RESTRICTION } from './custom-components-models.js';
 
 function isBrowser(): boolean {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
@@ -70,6 +77,8 @@ const PAGES = {
   '/symbol-with-input-binding': symbolWithInputBinding,
   '/content-bindings': contentBindings,
   '/image': image,
+  '/image-high-priority': imageHighPriority,
+  '/image-no-webp': imageNoWebp,
   '/data-bindings': dataBindings,
   '/data-binding-styles': dataBindingStyles,
   '/ab-test': abTest,
@@ -109,6 +118,10 @@ const PAGES = {
   '/accordion': ACCORDION,
   '/accordion-one-at-a-time': ACCORDION_ONE_AT_A_TIME,
   '/accordion-grid': ACCORDION_GRID,
+  '/symbol-tracking': SYMBOL_TRACKING,
+  '/columns-with-different-widths': COLUMNS_WITH_DIFFERENT_WIDTHS,
+  '/custom-components-models-show': CUSTOM_COMPONENTS_MODELS_RESTRICTION,
+  '/custom-components-models-not-show': CUSTOM_COMPONENTS_MODELS_RESTRICTION,
 } as const;
 
 const apiVersionPathToProp = {
@@ -181,16 +194,29 @@ export const getProps = async (args: {
     return null;
   }
 
-  const extraProps =
-    pathname === '/can-track-false'
-      ? {
-          canTrack: false,
-        }
-      : pathname.includes('no-trusted-hosts')
-        ? {
-            trustedHosts: [],
-          }
-        : {};
+  let extraProps = {};
+  switch (pathname) {
+    case '/can-track-false':
+    case '/symbol-tracking':
+      extraProps = {
+        canTrack: false,
+      };
+      break;
+    case '/no-trusted-hosts':
+    case '/editing-styles-no-trusted-hosts':
+      extraProps = {
+        trustedHosts: [],
+      };
+      break;
+    case '/custom-components-models-show':
+      // overrides page model below
+      extraProps = {
+        model: 'test-model',
+      };
+      break;
+    default:
+      break;
+  }
 
   const extraApiVersionProp =
     apiVersionPathToProp[pathname as keyof typeof apiVersionPathToProp] ?? {};

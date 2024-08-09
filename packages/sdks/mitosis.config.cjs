@@ -54,6 +54,17 @@ const SRCSET_PLUGIN = () => ({
 });
 
 /**
+ * @type {Plugin}
+ */
+const FETCHPRIORITY_CAMELCASE_PLUGIN = () => ({
+  code: {
+    pre: (code) => {
+      return code.replace(/fetchpriority=/g, 'fetchPriority=');
+    },
+  },
+});
+
+/**
  * Replaces all uses of the native `Text` component with our own `BaseText` component that injects inherited CSS styles
  * to `Text`, mimicking CSS inheritance.
  * @type {Plugin}
@@ -198,84 +209,49 @@ const filterActionAttrBindings = (json, item) => {
   });
 };
 
-const ANGULAR_HANDLE_TEMPLATE_STRS = () => ({
-  code: {
-    post: (code) => {
-      const pathValues = code.matchAll(/\[path\]="(.*?)"/g);
-      if (pathValues) {
-        for (const match of pathValues) {
-          const pathValue = match[1];
-          const replacedPath = pathValue
-            .replaceAll('`', "'")
-            .replaceAll('\\', '')
-            .replaceAll('.${', ".'+")
-            .replaceAll('}', "+'");
-          code = code.replace(
-            `[path]="${pathValue}"`,
-            `[path]="${replacedPath}"`
-          );
-        }
-      }
-      if (code.includes('tabs, Tabs')) {
-        const classValues = code.matchAll(/\[class\]="(.*?)"/g);
-        if (classValues) {
-          for (const match of classValues) {
-            const classValue = match[1];
-            if (classValue.includes('`')) {
-              // nasty hack to replace template strings inside tabs component class
-              code = code.replace(
-                `[class]="${classValue}"`,
-                `[class]="'builder-tab-wrap ' + (activeTab === index ? 'builder-tab-active' : '')"`
-              );
-            }
-          }
-        }
-      }
-      return code;
-    },
-  },
-});
-
-// Target Component: "ComponentRef"
-// in mitosis we pass props as inputs: { prop1, prop2, etc }
-// in this we call inputs: getWrapperProps() directly inside ngComponentOutlet as we don't need to spread the props
-const ANGULAR_PASS_CALLED_FUNCTION_TO_INPUTS_NO_NEED_TO_SPREAD = () => ({
-  code: {
-    post: (code) => {
-      if (code.includes('inputs: { getWrapperProps')) {
-        const wrapperObj =
-          code
-            .match(/inputs: {.*?}/s)[0]
-            .replace('inputs: {', '')
-            .replaceAll('props.', '') + ')';
-        const inputsObj = code
-          .match(/inputs: {.*?;/s)[0]
-          .replace('inputs: ', '');
-        code = code.replace(
-          inputsObj,
-          wrapperObj.replace('context.value', 'context')
+/**
+ * @type {Plugin}
+ */
+const ANGULAR_ADD_UNUSED_PROP_TYPES = () => ({
+  json: {
+    post: (json) => {
+      if (json.name === 'BuilderImage' || json.name === 'BuilderSymbol') {
+        json.hooks.onMount = json.hooks.onMount.filter(
+          (hook) =>
+            !hook.code.includes(
+              '/** this is a hack to include the input in angular */'
+            )
         );
       }
-      return code;
+      return json;
     },
   },
 });
 
-const ANGULAR_REMOVE_UNUSED_LINK_COMPONENT_PROP_PLUGIN = () => ({
-  code: {
-    post: (code) => {
-      if (code.includes('<enable-editor')) {
-        code = code.replace('[linkComponent]="linkComponent"', '');
+/**
+ * @type {Plugin}
+ * We explicitly add the builder-id attribute to the symbol component for Angular,
+ * because mitosis doesn't support spreading `props.attributes` yet.
+ *
+ */
+const ANGULAR_FIX_SYMBOL_BUILDER_ID_ATTRIBUTE = () => ({
+  json: {
+    post: (json) => {
+      if (json.name === 'BuilderSymbol') {
+        json.children[0].bindings['builder-id'] = {
+          code: "props.attributes['builder-id']",
+          type: 'single',
+        };
       }
-      if (code.includes('<block-wrapper')) {
-        code = code.replace('[linkComponent]="linkComponent"', '');
-      }
-      return code;
+      return json;
     },
   },
 });
 
 // for fixing circular dependencies
+/**
+ * @type {Plugin}
+ */
 const ANGULAR_FIX_CIRCULAR_DEPENDENCIES_OF_COMPONENTS = () => ({
   code: {
     post: (code) => {
@@ -301,21 +277,48 @@ const ANGULAR_OVERRIDE_COMPONENT_REF_PLUGIN = () => ({
   code: {
     post: (code) => {
       if (code.includes('component-ref, ComponentRef')) {
-        // onInit we check for this.isInteractive as its available at that time
-        // and set the Wrapper to InteractiveElement or componentRef
-        code = code.replace(
-          'ngOnInit() {\n',
-          `ngOnInit() {\n  this.Wrapper = this.isInteractive ? InteractiveElement : this.componentRef;\n`
+        code = code
+          .replace(
+            '<ng-container *ngFor="let child of blockChildren; trackBy: trackByChild0">',
+            '<ng-container *ngIf="componentRef">\n<ng-container *ngFor="let child of blockChildren; trackBy: trackByChild0">'
+          )
+          .replace('</ng-container>', '</ng-container>\n</ng-container>');
+        const ngOnChangesIndex = code.indexOf(
+          'ngOnChanges(changes: SimpleChanges) {'
         );
-        // we need to wrap the blockChildren in a ngIf to prevent rendering when componentRef is undefined
-        code = code.replace(
-          '<ng-container *ngFor="let child of blockChildren">',
-          '<ng-container *ngIf="componentRef">\n<ng-container *ngFor="let child of blockChildren">'
-        );
-        code = code.replace(
-          '</ng-container>',
-          '</ng-container>\n</ng-container>'
-        );
+
+        if (ngOnChangesIndex > -1) {
+          code = code.replace(
+            'ngOnChanges(changes: SimpleChanges) {',
+            // Add a check to see if the componentOptions have changed
+            `ngOnChanges(changes: SimpleChanges) {
+                if (changes.componentOptions) {
+                  let foundChange = false;
+                  for (const key in changes.componentOptions.previousValue) {
+                    if (changes.componentOptions.previousValue[key] !== changes.componentOptions.currentValue[key]) {
+                      foundChange = true;
+                      break;
+                    }
+                  }
+                  if (!foundChange) {
+                    return;
+                  }
+                }`
+          );
+        } else {
+          throw new Error('ngOnChanges not found in component-ref');
+        }
+      }
+      return code;
+    },
+  },
+});
+
+const ANGULAR_RENAME_NG_ONINIT_TO_NG_AFTERCONTENTINIT_PLUGIN = () => ({
+  code: {
+    post: (code) => {
+      if (code?.includes('blocks-wrapper, BlocksWrapper')) {
+        code = code.replace('ngOnInit', 'ngAfterContentInit');
       }
       return code;
     },
@@ -512,72 +515,6 @@ const ANGULAR_COMPONENT_NAMES_HAVING_HTML_TAG_NAMES = () => ({
   },
 });
 
-const BLOCKS = [
-  'builder-button',
-  'builder-image',
-  'columns',
-  'custom-code',
-  'builder-embed',
-  'img-component',
-  'raw-text',
-  'section-component',
-  'builder-slot',
-  'builder-symbol',
-  'builder-textarea',
-  'builder-video',
-];
-
-/**
- * As in Angular we can't spread arbitrary props in a component,
- * template: `<component2 {...attributes} />` will not work.
- * So, in our current mitosis implementation we send it as an object
- * template: `<component2 [wrapperProps]="{...attributes}" />`
- * Here we spread them to respective props/inputs in the component.
- */
-const ANGULAR_BLOCKS_PLUGIN = () => ({
-  code: {
-    post: (code) => {
-      if (BLOCKS.some((block) => code.includes(block))) {
-        const inputNames = code.match(/@Input\(\) (.*)!:/g);
-        const inputs = inputNames.map((input) => {
-          return input.replace('@Input() ', '').replace('!:', '');
-        });
-
-        const inputsTillEnd = code.match(/@Input\(\) (.*);/g);
-        code = code.replace(
-          inputsTillEnd[inputsTillEnd.length - 1],
-          `${inputsTillEnd[inputsTillEnd.length - 1]}\n  @Input() wrapperProps: any;`
-        );
-
-        const propInitStr = `
-        const properties = [${inputs.map((input) => `'${input}'`).join(', ')}];
-        properties.forEach(prop => {
-          if (this.wrapperProps && Object.prototype.hasOwnProperty.call(this.wrapperProps, prop)) {
-            this[prop] = this.wrapperProps[prop];
-          }
-        });
-        `;
-
-        if (code.includes('ngOnInit')) {
-          code = code.replace(
-            'ngOnInit() {',
-            `ngOnInit() {\n
-              ${propInitStr}
-            `
-          );
-        } else {
-          const lastEndIndex = code.lastIndexOf('}');
-          code = `${code.slice(0, lastEndIndex)}ngOnInit() {
-            ${propInitStr}
-          }
-          ${code.slice(lastEndIndex)}`;
-        }
-      }
-      return code;
-    },
-  },
-});
-
 const ANGULAR_BIND_THIS_FOR_WINDOW_EVENTS = () => ({
   code: {
     post: (code) => {
@@ -596,17 +533,7 @@ const ANGULAR_BIND_THIS_FOR_WINDOW_EVENTS = () => ({
             this.emitStateUpdate.bind(this)
           );`
         );
-        code = code.replace('onClick: onClick', 'onClick: onClick.bind(this)');
-        code = code.replace('ngAfterContentChecked', 'ngOnChanges');
       }
-
-      if (code.includes('blocks-wrapper')) {
-        code = code.replace(
-          'onClick: onClick, onMouseEnter: onMouseEnter, onKeyPress: onClick',
-          'onClick: onClick.bind(this), onMouseEnter: onMouseEnter.bind(this), onKeyPress: onClick.bind(this)'
-        );
-      }
-
       return code;
     },
   },
@@ -617,24 +544,24 @@ const ANGULAR_INITIALIZE_PROP_ON_NG_ONINIT = () => ({
   code: {
     post: (code) => {
       if (code.includes('content-component, ContentComponent')) {
-        const registeredComponentsCode = code.match(
-          /registeredComponents = \[.*\);/s
+        code = code.replaceAll(
+          'this.contentSetState',
+          'this.contentSetState.bind(this)'
         );
-        const builderContextSignalCode = code.match(
-          /builderContextSignal = \{.*\};/s
-        );
+      }
+      return code;
+    },
+  },
+});
 
-        // add them to ngOnInit
+const ANGULAR_WRAP_SYMBOLS_FETCH_AROUND_CHANGES_DEPS = () => ({
+  code: {
+    post: (code) => {
+      if (code.includes('builder-symbol, BuilderSymbol')) {
+        code = code.replace('ngOnChanges() {', 'ngOnChanges(changes) {');
         code = code.replace(
-          // last } before the end of the class
-          /}\n\s*$/,
-          `
-            ngOnInit() {
-              this.${registeredComponentsCode}
-              this.${builderContextSignalCode}
-            }
-          }
-          `
+          'this.setContent();',
+          'if (changes.symbol) { this.setContent(); }'
         );
       }
       return code;
@@ -657,21 +584,23 @@ module.exports = {
     angular: {
       standalone: true,
       typescript: true,
+      state: 'class-properties',
       plugins: [
-        ANGULAR_HANDLE_TEMPLATE_STRS,
-        ANGULAR_PASS_CALLED_FUNCTION_TO_INPUTS_NO_NEED_TO_SPREAD,
-        ANGULAR_REMOVE_UNUSED_LINK_COMPONENT_PROP_PLUGIN,
         ANGULAR_FIX_CIRCULAR_DEPENDENCIES_OF_COMPONENTS,
+        ANGULAR_FIX_SYMBOL_BUILDER_ID_ATTRIBUTE,
         ANGULAR_OVERRIDE_COMPONENT_REF_PLUGIN,
         ANGULAR_COMPONENT_NAMES_HAVING_HTML_TAG_NAMES,
-        ANGULAR_BLOCKS_PLUGIN,
         INJECT_ENABLE_EDITOR_ON_EVENT_HOOKS_PLUGIN,
-        ANGULAR_BIND_THIS_FOR_WINDOW_EVENTS,
         ANGULAR_INITIALIZE_PROP_ON_NG_ONINIT,
+        ANGULAR_BIND_THIS_FOR_WINDOW_EVENTS,
+        ANGULAR_WRAP_SYMBOLS_FETCH_AROUND_CHANGES_DEPS,
+        ANGULAR_RENAME_NG_ONINIT_TO_NG_AFTERCONTENTINIT_PLUGIN,
+        ANGULAR_ADD_UNUSED_PROP_TYPES,
       ],
     },
     solid: {
       typescript: true,
+      stylesType: 'style-tag',
       plugins: [
         INJECT_ENABLE_EDITOR_ON_EVENT_HOOKS_PLUGIN,
         REMOVE_SET_CONTEXT_PLUGIN_FOR_FORM,
@@ -714,6 +643,7 @@ module.exports = {
       typescript: true,
       plugins: [
         SRCSET_PLUGIN,
+        FETCHPRIORITY_CAMELCASE_PLUGIN,
         INJECT_ENABLE_EDITOR_ON_EVENT_HOOKS_PLUGIN,
         REMOVE_SET_CONTEXT_PLUGIN_FOR_FORM,
       ],
@@ -724,6 +654,7 @@ module.exports = {
       typescript: true,
       plugins: [
         SRCSET_PLUGIN,
+        FETCHPRIORITY_CAMELCASE_PLUGIN,
         REMOVE_SET_CONTEXT_PLUGIN_FOR_FORM,
         () => ({
           json: {
@@ -825,6 +756,13 @@ module.exports = {
               if (json.name === 'CustomCode') {
                 json.refs.elementRef.typeParameter = 'any';
               }
+
+              /**
+               * Fix component name as `Button` is imported from react-native
+               */
+              if (json.name === 'Button') {
+                json.name = 'BuilderButton';
+              }
             },
           },
         }),
@@ -833,6 +771,7 @@ module.exports = {
     qwik: {
       typescript: true,
       plugins: [
+        FETCHPRIORITY_CAMELCASE_PLUGIN,
         /**
          * cleanup `onMount` hooks
          * - rmv unnecessary ones

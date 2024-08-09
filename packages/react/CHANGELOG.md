@@ -1,5 +1,79 @@
 # @builder.io/react
 
+## 4.0.4
+
+### Patch Changes
+
+- b7c00cf: Fix SSR hydration issues with non-hover animated builder blocks
+- Updated dependencies [b7c00cf]
+  - @builder.io/sdk@2.2.9
+
+## 4.0.3
+
+### Patch Changes
+
+- 11e118c: Fix: serialize all functions within registered component info.
+- Updated dependencies [11e118c]
+  - @builder.io/sdk@2.2.8
+
+## 4.0.2
+
+### Patch Changes
+
+- Updated dependencies [b965695]
+  - @builder.io/sdk@2.2.7
+
+## 4.0.1
+
+### Patch Changes
+
+- 4ee499e: Fix: Image block: remove redundant `srcset` for SVG images
+
+## 4.0.0
+
+### Major Changes
+
+- d031580: Breaking Change 🧨: Columns block now computes percentage widths correctly, by subtracting gutter space proportionally to each percentage.
+  Previously, it computed the column's widths by subtracting gutter space equally from each column's width. This previous behavior was incorrect, and most strongly felt when the `space` was a substantially high percentage of the total width of the Columns block.
+
+## 3.2.12
+
+### Patch Changes
+
+- 1defae7: Refactor: move Embed iframe generation to Visual Editor
+- Updated dependencies [1defae7]
+  - @builder.io/sdk@2.2.6
+
+## 3.2.11
+
+### Patch Changes
+
+- 6187c39: Fix: `required` option for TextArea and Select blocks
+- 767795c: Fix binding to array property getters and methods in server context
+
+## 3.2.10
+
+### Patch Changes
+
+- bb4a5fd: Feature: add `webp` support for Image block file uploads.
+- 1f62b28: Fix: Remove `iframely` API key from Embed block logic.
+- Updated dependencies [a5b8810]
+  - @builder.io/sdk@2.2.5
+
+## 3.2.9
+
+### Patch Changes
+
+- 945f26e: Adds the `highPriority` option to the Image block component to ensure eager loading.
+
+## 3.2.8
+
+### Patch Changes
+
+- 4aaba38: Fix: bump `isolated-vm` dependency to `5.0.0`, adding support for Node v22.
+- Updated dependencies [4aaba38]
+  - @builder.io/sdk@2.2.4
+
 ## 3.2.7
 
 ### Patch Changes
@@ -123,10 +197,10 @@
 In case you feel the need to use our older API Version `v1`, reach out to us at support@builder.io first. But you can override the default by setting `apiVersion` explicitly to `v1` as follows:
 
 ```js
-import { builder } from '@builder.io/react';
+import { builder } from "@builder.io/react";
 
-builder.init('YOUR_BUILDER_PUBLIC_KEY');
-builder.apiVersion = 'v1';
+builder.init("YOUR_BUILDER_PUBLIC_KEY");
+builder.apiVersion = "v1";
 ```
 
 More details on the Builder API Versions visit [this link](https://www.builder.io/c/docs/content-api-versions).
@@ -138,10 +212,10 @@ More details on the Builder API Versions visit [this link](https://www.builder.i
 You can set the apiVersion using `builder.init` or `builder.apiVersion`:
 
 ```js
-import { builder } from '@builder.io/react';
+import { builder } from "@builder.io/react";
 
-builder.init('YOUR_BUILDER_PUBLIC_KEY');
-builder.apiVersion = 'v3';
+builder.init("YOUR_BUILDER_PUBLIC_KEY");
+builder.apiVersion = "v3";
 ```
 
 ## 2.0.16

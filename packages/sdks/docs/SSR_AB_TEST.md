@@ -4,6 +4,21 @@ Here is a brief overview of how our SSR'd A/B testing works.
 
 ## How it works
 
+At a high level, the way our SSR A/B testing works is the following:
+
+Server Side Render:
+
+- render every single variant
+- show only the default variant, and hide all other variants using CSS and `hidden` + `aria-hidden` HTML attributes
+
+Client Side Render (before web frameworks have had a chance to hydrate):
+
+- read/set a cookie to determine the winning variant
+- hide or delete all losing variants (depending on the framework), and show the winning variant.
+
+Essentially, we use inlined scripts to modify the SSR'd content ASAP, _before_ web frameworks hydrate/consume the content.
+This is how we "trick" them into thinking that the SSR'd content only ever had one visible variant.
+
 ### SSR
 
 let's assume a content with 3 variants: `default`, `variant-1`, `variant-2`.

@@ -3,14 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { VIDEO_CDN_URL } from '../specs/video.js';
 import type { ExpectedStyles } from '../helpers/index.js';
-import {
-  excludeRn,
-  excludeTestFor,
-  checkIsRN,
-  test,
-  isSSRFramework,
-  mockFolderPath,
-} from '../helpers/index.js';
+import { excludeRn, checkIsRN, test, isSSRFramework, mockFolderPath } from '../helpers/index.js';
 
 test.describe('Blocks', () => {
   test('Text', async ({ page, sdk, packageName }) => {
@@ -62,72 +55,166 @@ test.describe('Blocks', () => {
     await expect(button).toHaveCSS('background-color', 'rgb(0, 0, 0)');
   });
 
-  test('Image', async ({ page, sdk, packageName }) => {
-    test.skip(checkIsRN(sdk));
-    test.skip(
-      isSSRFramework(packageName),
-      'SSR frameworks get the images from the server so page.route intercept does not work'
-    );
-    const mockImgPath = path.join(mockFolderPath, 'placeholder-img.png');
-    const mockImgBuffer = fs.readFileSync(mockImgPath);
+  test.describe('Image', () => {
+    test('Image size', async ({ page, sdk, packageName }) => {
+      test.skip(checkIsRN(sdk));
+      test.skip(
+        isSSRFramework(packageName),
+        'SSR frameworks get the images from the server so page.route intercept does not work'
+      );
+      const mockImgPath = path.join(mockFolderPath, 'placeholder-img.png');
+      const mockImgBuffer = fs.readFileSync(mockImgPath);
 
-    await page.route('**/*', route => {
-      const request = route.request();
-      if (request.url().includes('cdn.builder.io/api/v1/image')) {
-        return route.fulfill({
-          status: 200,
-          contentType: 'image/png',
-          body: mockImgBuffer,
-        });
-      } else {
-        return route.continue();
+      await page.route('**/*', route => {
+        const request = route.request();
+        if (request.url().includes('cdn.builder.io/api/v1/image')) {
+          return route.fulfill({
+            status: 200,
+            contentType: 'image/png',
+            body: mockImgBuffer,
+          });
+        } else {
+          return route.continue();
+        }
+      });
+
+      await page.goto('/image');
+
+      const imageLocator = page.locator('.builder-image');
+
+      const expected: Record<string, string>[] = [
+        // first img is a webp image. React Native SDK does not yet support webp.
+        ...(checkIsRN(sdk)
+          ? []
+          : [
+              {
+                width: '604px',
+                height: '670.438px',
+                'object-fit': 'cover',
+              },
+            ]),
+        {
+          width: '1264px',
+          height: '240.156px',
+          // RN SDK does not support object-fit
+          'object-fit': checkIsRN(sdk) ? 'fill' : 'cover',
+        },
+        {
+          width: '604px',
+          height: '120.797px',
+          // RN SDK does not support object-fit
+          'object-fit': checkIsRN(sdk) ? 'fill' : 'contain',
+        },
+        {
+          width: '600px',
+          height: '400px',
+        },
+      ];
+
+      await expect(imageLocator).toHaveCount(expected.length);
+
+      const expectedVals = expected.map((val, i) => ({ val, i }));
+
+      for (const { val, i } of Object.values(expectedVals)) {
+        const image = imageLocator.nth(i);
+        const expected = val;
+        for (const property of Object.keys(expected)) {
+          await expect(image).toHaveCSS(property, expected[property]);
+        }
       }
     });
 
-    await page.goto('/image');
+    test('Image high priority', async ({ page, sdk, packageName }) => {
+      test.skip(checkIsRN(sdk));
+      test.skip(
+        isSSRFramework(packageName),
+        'SSR frameworks get the images from the server so page.route intercept does not work'
+      );
+      const mockImgPath = path.join(mockFolderPath, 'placeholder-img.png');
+      const mockImgBuffer = fs.readFileSync(mockImgPath);
 
-    const imageLocator = page.locator('.builder-image');
+      await page.route('**/*', route => {
+        const request = route.request();
+        if (request.url().includes('cdn.builder.io/api/v1/image')) {
+          return route.fulfill({
+            status: 200,
+            contentType: 'image/png',
+            body: mockImgBuffer,
+          });
+        } else {
+          return route.continue();
+        }
+      });
 
-    const expected: Record<string, string>[] = [
-      // first img is a webp image. React Native SDK does not yet support webp.
-      ...(checkIsRN(sdk)
-        ? []
-        : [
-            {
-              width: '604px',
-              height: '670.438px',
-              'object-fit': 'cover',
-            },
-          ]),
-      {
-        width: '1264px',
-        height: '240.156px',
-        // RN SDK does not support object-fit
-        'object-fit': checkIsRN(sdk) ? 'fill' : 'cover',
-      },
-      {
-        width: '604px',
-        height: '120.797px',
-        // RN SDK does not support object-fit
-        'object-fit': checkIsRN(sdk) ? 'fill' : 'contain',
-      },
-      {
-        width: '600px',
-        height: '400px',
-      },
-    ];
+      await page.goto('/image-high-priority');
 
-    await expect(imageLocator).toHaveCount(expected.length);
+      const imageLocator = page.locator('.builder-image');
 
-    const expectedVals = expected.map((val, i) => ({ val, i }));
+      const expected: Record<string, string>[] = [
+        // first img is a webp image. React Native SDK does not yet support webp.
+        ...(checkIsRN(sdk)
+          ? []
+          : [
+              {
+                fetchpriority: 'high',
+                loading: 'eager',
+              },
+            ]),
+        {
+          fetchpriority: 'auto',
+          loading: 'lazy',
+        },
+        {
+          fetchpriority: 'auto',
+          loading: 'lazy',
+        },
+        {
+          fetchpriority: 'high',
+          loading: 'eager',
+        },
+      ];
 
-    for (const { val, i } of Object.values(expectedVals)) {
-      const image = imageLocator.nth(i);
-      const expected = val;
-      for (const property of Object.keys(expected)) {
-        await expect(image).toHaveCSS(property, expected[property]);
+      await expect(imageLocator).toHaveCount(expected.length);
+
+      const expectedVals = expected.map((val, i) => ({ val, i }));
+
+      for (const { val, i } of Object.values(expectedVals)) {
+        const image = imageLocator.nth(i);
+        const expected = val;
+        for (const property of Object.keys(expected)) {
+          await expect(image).toHaveAttribute(property, expected[property]);
+        }
       }
-    }
+    });
+
+    test("SVG Image shouldn't have srcset", async ({ page, sdk, packageName }) => {
+      test.skip(checkIsRN(sdk));
+      test.skip(
+        isSSRFramework(packageName),
+        'SSR frameworks get the images from the server so page.route intercept does not work'
+      );
+      const mockSvgPath = path.join(mockFolderPath, 'sample-svg.svg');
+      const mockSvgBuffer = fs.readFileSync(mockSvgPath);
+
+      await page.route('**/*', route => {
+        const request = route.request();
+        if (request.url().includes('cdn.builder.io/api/v1/image')) {
+          return route.fulfill({
+            status: 200,
+            contentType: 'image/svg+xml',
+            body: mockSvgBuffer,
+          });
+        } else {
+          return route.continue();
+        }
+      });
+
+      await page.goto('/image-no-webp');
+
+      const img = page.locator('.builder-image');
+
+      await expect(img).not.toHaveAttribute('srcset');
+    });
   });
 
   test.describe('Video', () => {
@@ -312,10 +399,6 @@ test.describe('Blocks', () => {
               "intermittent success, can't use test.fail()"
             );
 
-            test.fail(
-              (sizeName === 'mobile' || sizeName === 'tablet') &&
-                excludeTestFor({ angular: true }, sdk)
-            );
             await page.setViewportSize(size);
             await page.goto('/columns');
             const columns = checkIsRN(sdk)
@@ -348,5 +431,67 @@ test.describe('Blocks', () => {
         }
       });
     }
+
+    test('check different width columns are correctly rendered', async ({ page, sdk }) => {
+      test.skip(checkIsRN(sdk));
+
+      await page.goto('/columns-with-different-widths');
+
+      const columns = await page.locator('.builder-columns').all();
+
+      const expected = [
+        [1 / 2, 1 / 2],
+        [1 / 1],
+        [1 / 3, 1 / 3, 1 / 3],
+        [1 / 3, 2 / 3],
+        [1 / 3, 2 / 3],
+      ];
+      const spaces = [20, 0, 40, 20, 400];
+
+      for (let i = 0; i < columns.length; i++) {
+        const containerWidth = (await columns[i].boundingBox())?.width ?? 0;
+        const expectedContainerWidth = containerWidth - spaces[i];
+        const innerColumns = await columns[i].locator('.builder-column').all();
+
+        for (let j = 0; j < innerColumns.length; j++) {
+          const width = await innerColumns[j].boundingBox();
+
+          // for example, 1200px container width and 20px space in between
+          // 1/2 column should be 590px, so 590px 590px
+          // we check if the width is close to 590px with in 1 decimal place of precision
+          // 590px + 590px + 20px = 1200px
+
+          // for a more complex example like the last one,
+          // container width is 1200px, space is 400px
+          // 1/3 should be 1200 / 3 - 400 / 3 = 800 / 3 = 266.6666666666667
+          // 2/3 should be 1200 * 2 / 3 - 400 * 2 / 3 = 1600 / 3 = 533.3333333333334
+          // so 266.6666666666667 + 533.3333333333334 + 400  = 1200
+          expect(width?.width).toBeCloseTo(expected[i][j] * expectedContainerWidth, 1);
+        }
+      }
+    });
+
+    test('space is correctly allocated', async ({ page, sdk }) => {
+      test.skip(checkIsRN(sdk));
+
+      await page.goto('/columns-with-different-widths');
+
+      const columns = page.locator('.builder-columns').nth(4);
+
+      const firstColumn = columns.locator('.builder-column').nth(0);
+      const secondColumn = columns.locator('.builder-column').nth(1);
+
+      const columnsContainerWidth = (await columns.boundingBox())?.width ?? 0;
+
+      const firstColumnWidth = (await firstColumn.boundingBox())?.width ?? 0;
+      const secondColumnWidth = (await secondColumn.boundingBox())?.width ?? 0;
+
+      const firstColumnSpace = columnsContainerWidth / 3 - firstColumnWidth;
+      const secondColumnSpace = (columnsContainerWidth / 3) * 2 - secondColumnWidth;
+
+      expect(firstColumnSpace).toBeCloseTo(400 / 3, 1);
+      expect(secondColumnSpace).toBeCloseTo((400 / 3) * 2, 1);
+      expect(firstColumnSpace + secondColumnSpace).toBeCloseTo(400, 1);
+    });
   });
 });

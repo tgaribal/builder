@@ -1,6 +1,6 @@
 {
   "name": "@builder.io/sdk-qwik",
-  "version": "0.14.22",
+  "version": "0.16.3",
   "homepage": "https://github.com/BuilderIO/builder/tree/main/packages/sdks/output/qwik",
   "repository": {
     "type": "git",
@@ -106,7 +106,7 @@
     "build:browser": "SDK_ENV=browser yarn build:one"
   },
   "dependencies": {
-    "isolated-vm": "^4.6.0"
+    "isolated-vm": "^5.0.0"
   },
   "devDependencies": {
     "@builder.io/qwik": "^1.5.1",
@@ -114,7 +114,7 @@
     "@types/node": "latest",
     "nx": "16.10.0",
     "nx-cloud": "16.5.2",
-    "typescript": "^5.1.6",
+    "typescript": "5.5.2",
     "vite": "^4.3.2"
   },
   "peerDependencies": {

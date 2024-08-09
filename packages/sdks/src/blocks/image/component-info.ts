@@ -18,7 +18,7 @@ export const componentInfo: ComponentInfo = {
       name: 'image',
       type: 'file',
       bubble: true,
-      allowedFileTypes: ['jpeg', 'jpg', 'png', 'svg'],
+      allowedFileTypes: ['jpeg', 'jpg', 'png', 'svg', 'webp'],
       required: true,
       defaultValue:
         'https://cdn.builder.io/api/v1/image/assets%2FYJIGb4i01jvw0SRdL5Bt%2F72c80f114dc149019051b6852a9e3b7a',
@@ -158,6 +158,13 @@ export const componentInfo: ComponentInfo = {
       defaultValue: true,
     },
     {
+      name: 'highPriority',
+      type: 'boolean',
+      advanced: true,
+      helperText:
+        'Mark this image as high priority compared to other images on the page. This prevents lazy loading of the image and tells the browser to load this image before others on the page.',
+    },
+    {
       name: 'aspectRatio',
       type: 'number',
       helperText:
@@ -166,4 +173,8 @@ export const componentInfo: ComponentInfo = {
       defaultValue: 0.7041,
     },
   ],
+
+  shouldReceiveBuilderProps: {
+    builderBlock: true,
+  },
 };

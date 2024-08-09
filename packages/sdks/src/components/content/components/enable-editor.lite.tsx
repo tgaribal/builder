@@ -57,6 +57,7 @@ type BuilderEditorProps = Omit<
   | 'blocksWrapper'
   | 'blocksWrapperProps'
   | 'isNestedRender'
+  | 'linkComponent'
 > & {
   builderContextSignal: Signal<BuilderContextInterface>;
   setBuilderContextSignal?: (signal: any) => any;
@@ -308,7 +309,7 @@ export default function EnableEditor(props: BuilderEditorProps) {
       const searchParams = new URL(location.href).searchParams;
       const searchParamPreviewModel = searchParams.get('builder.preview');
       const searchParamPreviewId = searchParams.get(
-        `builder.preview.${searchParamPreviewModel}`
+        `builder.overrides.${searchParamPreviewModel}`
       );
       const previewApiKey =
         searchParams.get('apiKey') || searchParams.get('builder.space');

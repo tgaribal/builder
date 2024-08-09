@@ -14,7 +14,7 @@ import type { ServerName } from '../helpers/sdk.js';
 /**
  * These packages fetch symbol content on the server, so we cannot test them.
  */
-const SSR_FETCHING_PACKAGES: (ServerName | 'DEFAULT')[] = ['next-app-dir', 'qwik-city'];
+const SSR_FETCHING_PACKAGES: (ServerName | 'DEFAULT')[] = ['nextjs-sdk-next-app', 'qwik-city'];
 
 const testSymbols = async (page: Page) => {
   await expect(page.getByText('special test description').locator('visible=true')).toBeVisible();
@@ -60,14 +60,12 @@ const testSymbols = async (page: Page) => {
 };
 
 test.describe('Symbols', () => {
-  test('render correctly', async ({ page, sdk }) => {
-    test.fail(excludeTestFor({ angular: true }, sdk), 'Angular Gen2 SDK not implemented.');
+  test('render correctly', async ({ page }) => {
     await page.goto('/symbols');
 
     await testSymbols(page);
   });
   test('fetch content if not provided', async ({ page, packageName, sdk }) => {
-    test.fail(excludeTestFor({ angular: true }, sdk), 'Angular Gen2 SDK not implemented.');
     test.fail(SSR_FETCHING_PACKAGES.includes(packageName));
 
     let x = 0;
@@ -141,7 +139,6 @@ test.describe('Symbols', () => {
 
   test.describe('apiVersion', () => {
     test('apiVersion is not set', async ({ page, packageName, sdk }) => {
-      test.fail(excludeTestFor({ angular: true }, sdk), 'Angular Gen2 SDK not implemented.');
       test.fail(SSR_FETCHING_PACKAGES.includes(packageName));
 
       let x = 0;
@@ -175,7 +172,6 @@ test.describe('Symbols', () => {
     });
 
     test('apiVersion is set to v3', async ({ page, packageName, sdk }) => {
-      test.fail(excludeTestFor({ angular: true }, sdk), 'Angular Gen2 SDK not implemented.');
       test.fail(SSR_FETCHING_PACKAGES.includes(packageName));
       let x = 0;
 
@@ -243,7 +239,7 @@ test.describe('Symbols', () => {
 
     // gen1-remix and gen1-next are also skipped because React.useContext is not recognized
     // rsc skipped because it fetches the content from the server
-    test.fail(['gen1-remix', 'gen1-next', 'next-app-dir'].includes(packageName));
+    test.fail(['gen1-remix', 'gen1-next', 'nextjs-sdk-next-app'].includes(packageName));
 
     const symbols = page.locator('[builder-model="symbol"]');
     await expect(symbols).toHaveCount(2);

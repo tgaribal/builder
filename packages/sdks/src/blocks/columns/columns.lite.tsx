@@ -56,9 +56,12 @@ export default function Columns(props: ColumnProps) {
       return state.cols[index]?.width || 100 / state.cols.length;
     },
     getColumnCssWidth(index: number) {
+      const width = state.getWidth(index);
+
       const subtractWidth =
-        (state.gutterSize * (state.cols.length - 1)) / state.cols.length;
-      return `calc(${state.getWidth(index)}% - ${subtractWidth}px)`;
+        state.gutterSize * (state.cols.length - 1) * (width / 100);
+
+      return `calc(${width}% - ${subtractWidth}px)`;
     },
 
     getTabletStyle({
@@ -161,6 +164,10 @@ export default function Columns(props: ColumnProps) {
     },
 
     columnsStyles(): string {
+      const childColumnDiv = useTarget({
+        angular: `.${props.builderBlock.id}-breakpoints .builder-column:first-of-type`,
+        default: `.${props.builderBlock.id}-breakpoints > .builder-column`,
+      });
       return `
         @media (max-width: ${state.getWidthForBreakpointSize('medium')}px) {
           .${props.builderBlock.id}-breakpoints {
@@ -168,7 +175,7 @@ export default function Columns(props: ColumnProps) {
             align-items: stretch;
           }
 
-          .${props.builderBlock.id}-breakpoints > .builder-column {
+          ${childColumnDiv} {
             width: var(--column-width-tablet) !important;
             margin-left: var(--column-margin-left-tablet) !important;
           }
@@ -180,7 +187,7 @@ export default function Columns(props: ColumnProps) {
             align-items: stretch;
           }
 
-          .${props.builderBlock.id}-breakpoints > .builder-column {
+          ${childColumnDiv} {
             width: var(--column-width-mobile) !important;
             margin-left: var(--column-margin-left-mobile) !important;
           }
@@ -225,7 +232,11 @@ export default function Columns(props: ColumnProps) {
          * "dynamic" media query values based on custom breakpoints.
          * Adding them directly otherwise leads to Mitosis and TS errors.
          */}
-        <InlinedStyles styles={state.columnsStyles()} id="builderio-columns" />
+        <InlinedStyles
+          styles={state.columnsStyles()}
+          id="builderio-columns"
+          nonce={props.builderContext.value.nonce}
+        />
       </Show>
 
       <For each={props.columns}>

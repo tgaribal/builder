@@ -11,17 +11,17 @@ export type Sdk =
   | 'vue'
   | 'angular';
 
-const ServerNameEnum = z.enum([
+const serverNameEnumValues = [
   'react-native',
   'solid',
   'solid-start',
   'qwik-city',
-  'next-pages-dir',
+  'react-sdk-next-pages',
   'react',
   'remix',
   'hydrogen',
-  'next-app-dir-client',
-  'next-app-dir',
+  'react-sdk-next-app',
+  'nextjs-sdk-next-app',
   'vue',
   'nuxt',
   'svelte',
@@ -31,11 +31,17 @@ const ServerNameEnum = z.enum([
   'gen1-react',
   'gen1-remix',
   'gen1-next',
-]);
+] as const;
+const ServerNameEnum = z.enum(serverNameEnumValues);
 export type ServerName = z.infer<typeof ServerNameEnum>;
 
-export const serverNames =
-  process.env.SERVER_NAME?.split(',').map(str => ServerNameEnum.parse(str)) ?? [];
+const envServerName = !process.env.SERVER_NAME
+  ? []
+  : process.env.SERVER_NAME === 'all'
+    ? serverNameEnumValues
+    : process.env.SERVER_NAME.split(',');
+
+export const serverNames = envServerName.map(str => ServerNameEnum.parse(str)) ?? [];
 
 if (serverNames.length === 0) {
   throw new Error(
@@ -51,16 +57,16 @@ export const SDK_MAP: Record<ServerName, Sdk> = {
   solid: 'solid',
   'solid-start': 'solid',
   'qwik-city': 'qwik',
-  'next-pages-dir': 'react',
+  'react-sdk-next-pages': 'react',
   react: 'react',
   remix: 'react',
   hydrogen: 'react',
-  'next-app-dir-client': 'react',
+  'react-sdk-next-app': 'react',
   vue: 'vue',
   nuxt: 'vue',
   svelte: 'svelte',
   sveltekit: 'svelte',
-  'next-app-dir': 'rsc',
+  'nextjs-sdk-next-app': 'rsc',
   'gen1-react': 'oldReact',
   'gen1-next': 'oldReact',
   'gen1-remix': 'oldReact',

@@ -1,3 +1,4 @@
+import type { Signal } from '@builder.io/mitosis';
 import type {
   BuilderContextInterface,
   RegisteredComponent,
@@ -110,35 +111,41 @@ export const getInheritedStyles = ({
   return extractTextStyles(style);
 };
 
-export const shouldPassLinkComponent = (
-  block: RegisteredComponent | null | undefined
+export const provideLinkComponent = (
+  block: RegisteredComponent | null | undefined,
+  linkComponent: any
 ) => {
-  return (
-    block &&
-    (block.isRSC ||
-      [
-        'Core:Button',
-        'Symbol',
-        'Columns',
-        'Form:Form',
-        'Builder: Tabs',
-        'Builder:Accordion',
-      ].includes(block.name))
-  );
+  if (block?.shouldReceiveBuilderProps?.builderLinkComponent)
+    return { builderLinkComponent: linkComponent };
+
+  return {};
 };
 
-export const shouldPassRegisteredComponents = (
-  block: RegisteredComponent | null | undefined
+export const provideRegisteredComponents = (
+  block: RegisteredComponent | null | undefined,
+  registeredComponents: RegisteredComponents
 ) => {
-  return (
-    block &&
-    (block.isRSC ||
-      [
-        'Symbol',
-        'Columns',
-        'Form:Form',
-        'Builder: Tabs',
-        'Builder:Accordion',
-      ].includes(block.name))
-  );
+  if (block?.shouldReceiveBuilderProps?.builderComponents)
+    return { builderComponents: registeredComponents };
+
+  return {};
+};
+
+export const provideBuilderBlock = (
+  block: RegisteredComponent | null | undefined,
+  builderBlock: BuilderBlock
+) => {
+  if (block?.shouldReceiveBuilderProps?.builderBlock) return { builderBlock };
+
+  return {};
+};
+
+export const provideBuilderContext = (
+  block: RegisteredComponent | null | undefined,
+  context: Signal<BuilderContextInterface>
+) => {
+  if (block?.shouldReceiveBuilderProps?.builderContext)
+    return { builderContext: context };
+
+  return {};
 };

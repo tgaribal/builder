@@ -44,13 +44,15 @@ export default class DynamicDiv {
   @Input() onClick: any;
   @Input() onMouseEnter: any;
   @Input() onKeyPress: any;
+  @Input() hidden: any;
+  @Input('aria-hidden') ariaHidden: any;
 
   @ViewChild('v', { read: ElementRef })
   v!: ElementRef;
 
   constructor(private renderer: Renderer2) {}
 
-  ngOnChanges() {
+  ngAfterViewInit() {
     const el = this.v && this.v.nativeElement;
     if (!el) {
       return;
@@ -63,6 +65,35 @@ export default class DynamicDiv {
     this.setAttribute(el, 'builder-path', this.builderPath);
     this.setAttribute(el, 'builder-model', this.builderModel);
     this.setAttribute(el, 'builder-content-id', this.builderContentId);
+    this.setAttribute(el, 'hidden', this.hidden);
+    this.setAttribute(el, 'aria-hidden', this.ariaHidden);
+  }
+
+  ngOnChanges(changes) {
+    const el = this.v && this.v.nativeElement;
+    if (!el) {
+      return;
+    }
+
+    if (Object.keys(changes).length === 0) {
+      return;
+    }
+
+    if (changes.attributes) this.setAttributes(el, this.attributes);
+    if (changes.showContentProps) this.setAttributes(el, this.showContentProps);
+    if (changes.classProp) this.setAttribute(el, 'class', this.classProp);
+    if (changes.style) this.setAttribute(el, 'style', this.style);
+    if (changes.builderParentId)
+      this.setAttribute(el, 'builder-parent-id', this.builderParentId);
+    if (changes.builderPath)
+      this.setAttribute(el, 'builder-path', this.builderPath);
+    if (changes.builderModel)
+      this.setAttribute(el, 'builder-model', this.builderModel);
+    if (changes.builderContentId)
+      this.setAttribute(el, 'builder-content-id', this.builderContentId);
+    if (changes.hidden) this.setAttribute(el, 'hidden', this.hidden);
+    if (changes.ariaHidden)
+      this.setAttribute(el, 'aria-hidden', this.ariaHidden);
   }
 
   private setAttributes(el: HTMLElement, attributes: any) {

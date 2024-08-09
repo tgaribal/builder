@@ -53,7 +53,11 @@ export default function ContentComponent(props: ContentProps) {
 
     registeredComponents: [
       ...getDefaultRegisteredComponents(),
-      ...(props.customComponents || []),
+      ...(props.customComponents?.filter(({ models }) => {
+        if (!models?.length) return true;
+        if (!props.model) return true;
+        return models.includes(props.model);
+      }) || []),
     ].reduce<RegisteredComponents>(
       (acc, { component, ...info }) => ({
         ...acc,
@@ -94,11 +98,16 @@ export default function ContentComponent(props: ContentProps) {
           default: state.contentSetState,
         }),
         context: props.context || {},
+        canTrack: props.canTrack,
         apiKey: props.apiKey,
         apiVersion: props.apiVersion,
         componentInfos: [
           ...getDefaultRegisteredComponents(),
-          ...(props.customComponents || []),
+          ...(props.customComponents?.filter(({ models }) => {
+            if (!models?.length) return true;
+            if (!props.model) return true;
+            return models.includes(props.model);
+          }) || []),
         ].reduce<Dictionary<ComponentInfo>>(
           (acc, { component: _, ...info }) => ({
             ...acc,
@@ -115,6 +124,7 @@ export default function ContentComponent(props: ContentProps) {
           default: props.blocksWrapper || 'div',
         }),
         BlocksWrapperProps: props.blocksWrapperProps || {},
+        nonce: props.nonce || '',
       },
       { reactive: true }
     );
@@ -125,6 +135,7 @@ export default function ContentComponent(props: ContentProps) {
 
   return (
     <EnableEditor
+      nonce={props.nonce}
       content={props.content}
       data={props.data}
       model={props.model}
@@ -137,7 +148,6 @@ export default function ContentComponent(props: ContentProps) {
       builderContextSignal={builderContextSignal}
       contentWrapper={props.contentWrapper}
       contentWrapperProps={props.contentWrapperProps}
-      linkComponent={props.linkComponent}
       trustedHosts={props.trustedHosts}
       {...useTarget({
         // eslint-disable-next-line object-shorthand
@@ -153,10 +163,12 @@ export default function ContentComponent(props: ContentProps) {
         <InlinedScript
           scriptStr={state.scriptStr}
           id="builderio-variant-visibility"
+          nonce={props.nonce || ''}
         />
       </Show>
       <Show when={TARGET !== 'reactNative'}>
         <ContentStyles
+          nonce={props.nonce || ''}
           isNestedRender={props.isNestedRender}
           contentId={builderContextSignal.value.content?.id}
           cssCode={builderContextSignal.value.content?.data?.cssCode}

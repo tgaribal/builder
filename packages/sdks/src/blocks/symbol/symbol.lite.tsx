@@ -93,6 +93,14 @@ export default function Symbol(props: SymbolProps) {
       react: () => {},
       reactNative: () => {},
       solid: () => {},
+      angular: () => {
+        /** this is a hack to include the input in angular */
+        const _ = {
+          a: props.dataOnly,
+          b: props.inheritState,
+          c: props.renderToLiquid,
+        };
+      },
 
       default: () => {
         state.setContent();
@@ -119,6 +127,7 @@ export default function Symbol(props: SymbolProps) {
       })}
     >
       <ContentVariants
+        nonce={props.builderContext.value.nonce}
         isNestedRender
         apiVersion={props.builderContext.value.apiVersion}
         apiKey={props.builderContext.value.apiKey!}
@@ -132,6 +141,7 @@ export default function Symbol(props: SymbolProps) {
           ...props.builderContext.value.localState,
           ...state.contentToUse?.data?.state,
         }}
+        canTrack={props.builderContext.value.canTrack}
         model={props.symbol?.model}
         content={state.contentToUse}
         linkComponent={props.builderLinkComponent}

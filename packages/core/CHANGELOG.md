@@ -1,5 +1,41 @@
 # @builder.io/sdk
 
+## 2.2.9
+
+### Patch Changes
+
+- b7c00cf: Silence errors from non essential query params parsing
+
+## 2.2.8
+
+### Patch Changes
+
+- 11e118c: Fix: serialize all functions within registered component info.
+
+## 2.2.7
+
+### Patch Changes
+
+- b965695: Fix: reverts `v2.2.5` change to `userAttributes` parsing logic, as it caused breaking changes in certain cases.
+
+## 2.2.6
+
+### Patch Changes
+
+- 1defae7: Refactor: move Embed iframe generation to Visual Editor
+
+## 2.2.5
+
+### Patch Changes
+
+- a5b8810: Fix: handle parsing of stringified numeric values in `userAttributes`
+
+## 2.2.4
+
+### Patch Changes
+
+- 4aaba38: Fix: bump `isolated-vm` dependency to `5.0.0`, adding support for Node v22.
+
 ## 2.2.3
 
 ### Patch Changes
