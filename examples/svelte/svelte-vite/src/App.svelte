@@ -4,23 +4,44 @@
 
   // Create an array of your custom components and their properties
   const CUSTOM_COMPONENTS = [
-    {
-      component: Counter,
-      name: 'Counter',
-      inputs: [
-        {
-          name: 'name',
-          type: 'string',
-          defaultValue: 'hello'
-        },
-        {
-          name: 'count',
-          type: 'number',
-          defaultValue: 0
-        }
-      ]
-    }
-  ];
+		{
+			component: Counter,
+			name: 'Counter',
+			inputs: [
+				{
+					name: 'name',
+					type: 'string',
+					defaultValue: 'hello'
+				},
+				{
+					name: 'count',
+					type: 'number',
+					defaultValue: 0
+				}
+			]
+		},
+		{
+			component: SeButton,
+			name: 'ContactSalesButtonFnB',
+			canHaveChildren: false,
+			friendlyName: 'Contact sales button',
+			inputs: [
+				{
+					name: 'buttonText',
+					type: 'text',
+					defaultValue: l('Contact Sales'),
+					localized: true,
+					required: true,
+				},
+				{
+					name: 'link',
+					type: URL,
+					localized: true,
+					required: true,
+				}
+			]
+		}
+	];
   // TODO: enter your public API key
   const BUILDER_PUBLIC_API_KEY = 'f1a790f8c3204b3b8c5c1795aeac4660'; // ggignore
 

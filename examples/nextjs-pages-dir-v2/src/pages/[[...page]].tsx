@@ -5,7 +5,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 // Replace with your Public API Key
-const BUILDER_PUBLIC_API_KEY = 'f1a790f8c3204b3b8c5c1795aeac4660';
+const BUILDER_PUBLIC_API_KEY = '50b344f9116e4820a020e382058146e0';
 
 // Define a function that fetches the Builder content for a given page
 export const getStaticProps: GetStaticProps = async ({ params }) => {
@@ -42,7 +42,8 @@ export async function getStaticPaths() {
 
   // Generate the static paths for all pages in Builder
   return {
-    paths: pages.map(page => `${page.data?.url}`).filter(url => url !== '/'),
+    // paths: pages.map(page => `${page.data?.url}`).filter(url => url !== '/'),
+    paths: [],
     fallback: 'blocking',
   };
 }
@@ -70,7 +71,7 @@ export default function Page(props: { page: BuilderContent | null }) {
         <title>{props.page?.data?.title}</title>
       </Head>
       {/* Render the Builder page */}
-      <Content model="page" content={props.page} apiKey={BUILDER_PUBLIC_API_KEY} />
+      <Content model="page" content={props.page} apiKey={BUILDER_PUBLIC_API_KEY} data={{products: [{header: "hello1"}, {header: "hello2"}]}}/>
     </>
   );
 }

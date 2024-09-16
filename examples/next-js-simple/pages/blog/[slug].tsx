@@ -6,11 +6,11 @@ import DefaultErrorPage from 'next/error'
 import Head from 'next/head'
 // loading widgets dynamically to reduce bundle size, will only be included in bundle when is used in the content
 import '@builder.io/widgets/dist/lib/builder-widgets-async'
-import * as fs from 'fs';
-import { RouteMatcher } from 'next/dist/server/future/route-matchers/route-matcher'
+import '../../builder-registry'
 
-// builder.init(builderConfig.apiKey)
 builder.init('271bdcf584e24ca896dede7a91dfb1cb');
+
+let locale="en-US";
 
 export async function getStaticProps({
   params,
@@ -22,6 +22,7 @@ export async function getStaticProps({
         query: {
           'data.slug': params?.slug
         },
+        locale,
         options: {
           enrich: true
         }
@@ -30,9 +31,13 @@ export async function getStaticProps({
       const articleTemplate = 
       (await builder
         .get('blog-template', {
+          userAttributes: {
+            urlPath: `/blog/${params?.slug}`
+          },
           options: {
             enrich: true
-          }
+          },
+          locale,
         }).toPromise()) || null
 
   return {
@@ -49,12 +54,12 @@ export async function getStaticProps({
 
 export async function getStaticPaths() {
   const articles = await builder.getAll('article', {
-    options: { noTargeting: true, enrich: true },
-    omit: 'data.blocks',
+    options: { noTargeting: true },
+    fields: 'data.slug',
   })
 
   return {
-    paths: [], //articles.map((article) => `/blog/${article.data?.slug}`),
+    paths: articles.map((article: any) => `/blog/${article.data?.slug}`),
     fallback: true
   }
 }
@@ -66,8 +71,7 @@ export default function Page({
   const router = useRouter()
   const isPreviewingInBuilder = useIsPreviewing()
   const show404 = !articleData && !isPreviewingInBuilder
-  // console.log('hello article: ',articleData?.data)
-  // // console.log('hello template: ', articleTemplate);
+  const useDataVisualPreview = (isPreviewingInBuilder && builder?.editingModel === "article");
   if (router.isFallback) {
     return <h1>Loading...</h1>
   }
@@ -81,16 +85,17 @@ export default function Page({
       {show404 ? (
         <DefaultErrorPage statusCode={404} />
       ) : (
-        <>
-          <BuilderContent model="article" content={articleData}>
-            {(article, loading, content) => {
-              console.log('here is the stuff:', article)
-            return(<>
-              <BuilderComponent model="blog-template" content={articleTemplate} data={{article}} options={{ enrich: true }}/>
-            </>)
-          }}
-          </BuilderContent>
-        </>
+        useDataVisualPreview ? (
+            <BuilderContent model="article" content={articleData}>
+              {(article, loading, content) => { 
+                return(<> 
+                  <BuilderComponent model="blog-template" locale={locale} content={articleTemplate} data={{article}} />
+                </>)
+              }} 
+            </BuilderContent> 
+        ) : (
+          <BuilderComponent model="blog-template" locale={locale} content={articleTemplate} data={{article: articleData?.data}} />
+        )
       )}
     </>
   )

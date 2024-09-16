@@ -12,6 +12,7 @@ export const ExampleWithChildren = (props) => {
             blocks={props.before}
             dataPath={`component.options.before`} />
         <h2>{props.text}</h2>
+        <div>HEY THIS IS CONTENT IN BETWEEN </div>
         <div>{props.reference?.value?.data?.text}</div>
         <BuilderBlocks
             child
@@ -35,17 +36,10 @@ export const ExampleWithChildren = (props) => {
 //   ],
 // })
 
-// Builder.register('insertMenu', {
-//   name: 'Another',
-//   items: [
-//     { name: 'Columns' },
-//     { name: 'Text' },
-//     { name: 'Core:Button' },
-//   ],
-// })
+
  Builder.registerComponent(withChildren(ExampleWithChildren), {
     name: "With Children",
-    // friendlyName: 'something new',
+    friendlyName: 'something new',
     image: 'https://cdn.corpemf.com/www/builder-io/section.png',
     inputs: [
       {
@@ -60,6 +54,16 @@ export const ExampleWithChildren = (props) => {
         name: 'style',
         type: 'text',
         enum: ['h1', 'h2', ]
+      },
+      {
+        name: "file of allowedTypes",
+        type: "file",
+        allowedFileTypes: [
+            "jpeg",
+            "jpg",
+            "png",
+            "svg"
+        ]
       },
       {
         name: "before",

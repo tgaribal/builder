@@ -1,6 +1,6 @@
 import { Content, fetchOneEntry, isEditing, isPreviewing } from '@builder.io/sdk-react';
 
-const BUILDER_PUBLIC_API_KEY = 'f1a790f8c3204b3b8c5c1795aeac4660';
+const BUILDER_PUBLIC_API_KEY = '50b344f9116e4820a020e382058146e0';
 
 interface PageProps {
   params: { slug: string[] };
@@ -32,5 +32,5 @@ export default async function Page(props: PageProps) {
       </>
     );
   }
-  return <Content content={content} apiKey={BUILDER_PUBLIC_API_KEY} model={'page'} />;
+  return <Content content={content} apiKey={BUILDER_PUBLIC_API_KEY} model={'page'} data={{products: [{header: "heading1"}, {header: "heading2"}]}}/>;
 }

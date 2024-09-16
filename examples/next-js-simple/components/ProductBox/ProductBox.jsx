@@ -47,14 +47,9 @@ export const ExampleWithChildren = (props) => {
       },
       {
         name: 'siblings',
-        type: 'object',
+        type: 'list',
+        localized: true,
         // keysHelp/erText: 'hey this is something',
-        folded: true,
-        onChange: (options) => {
-          console.log('OPTIONS: ', options.get('siblings'));
-          firstChild = options.get('siblings').get('firstChild').get('name')
-          console.log('FIRST: ', firstChild)
-        },
         subFields: [
           {
             name: 'firstChild',
@@ -74,27 +69,26 @@ export const ExampleWithChildren = (props) => {
               },
             ],
           },
-          {
-            name: 'secondChild',
-            type: 'object',
-            subFields: [
-              {
-                name: 'name',
-                type: 'string',
-                defaultValue: firstChild,
-                required: true
-              },
-              {
-                name: 'age',
-                type: 'number',
-              },
-              {
-                name: 'location',
-                type: 'string',
-              },
-            ],
-          },
         ],
+        onChange: `
+          let menuItems = options.get('siblings').toJSON();
+          console.log('MENYU', menuItems)
+          for (const locale in menuItems) {
+              if (locale !== '@type' && menuItems[locale].length > 5) {
+                  console.log('herkeh')
+                  alert('Maximum items is 5.');
+                  menuItems = menuItems[locale].slice(0, 5);
+                  options.set('siblings', menuItems);
+              }
+              if (locale !== '@type' && menuItems[locale].length <= 2) {
+                console.log('herkeh')
+                alert('Minimum items is 2.');
+                menuItems = menuItems[locale].slice(0, 2);
+                options.set('siblings', menuItems);
+            }
+              
+          }
+      `,
   }
     ],
  })

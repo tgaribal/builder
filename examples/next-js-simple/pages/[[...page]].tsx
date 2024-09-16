@@ -1,7 +1,6 @@
 import type { GetStaticPropsContext, InferGetStaticPropsType } from 'next'
 import { useRouter } from 'next/router'
 import { BuilderComponent, builder, useIsPreviewing, withChildren, BuilderContent, Builder, Image } from '@builder.io/react'
-import { getAsyncProps } from '@builder.io/utils';
 import DefaultErrorPage from 'next/error'
 import Head from 'next/head'
 import builderConfig from '@config/builder'
@@ -15,32 +14,6 @@ import "@components/AsyncComp/AsycnComp"
 import "@components/ProductBox/ProductBox"
 import "@components/abTestComp/AbTestComp";
 import "builder-registry"
-// import { Builder } from '@builder.io/react'
-
-Builder.registerComponent(
-  (props: any) => {
-    if (!props.cloudinaryOptions) {
-      return 'Choose an Image'
-    }
-    return (
-      <img
-        src={props.cloudinaryOptions.url}
-        width={props.cloudinaryOptions.width}
-        height={props.cloudinaryOptions.height}
-      />
-    )
-  },
-  {
-    name: 'CloudinaryImage',
-    image:
-      'https://res.cloudinary.com/cloudinary-marketing/image/upload/v1599098500/creative_source/Logo/Cloud%20Glyph/cloudinary_cloud_glyph_blue_png.png',
-    inputs: [{ 
-      name: 'cloudinaryOptions', 
-      type: 'cloudinaryImageEditor' 
-    }],
-  }
-)
-
 
 export async function getStaticProps({
   params,
@@ -54,7 +27,8 @@ export async function getStaticProps({
       userAttributes: {
         urlPath: '/' + (params?.page?.join('/') || ''),
         loggedIn: false,
-        // enrollmentStatus: 'earlyStudent',
+        tags: 'vip',
+        // category: 'something',
         locale
       },
       // cachebust: true,
@@ -108,7 +82,7 @@ export default function Page({
   const router = useRouter()
   const isPreviewingInBuilder = useIsPreviewing()
   const show404 = !page && !isPreviewingInBuilder
-  console.log('PAGE TWOTWOTWO: ', page)
+  // console.log('PAGE TWOTWOTWO: ', page)
 
 // function uploadImage(file: any) {
 //   // Read the binary data from the image file
@@ -167,7 +141,7 @@ export default function Page({
               model="page" 
               locale={locale} 
               content={page}
-              data={{userName: 'Tim', loggedIn: true, customerStatus: 'newCustomer'}}
+              data={{userName: 'Tim', loggedIn: true, customerStatus: 'newCustomer', location: 'New Jersey'}}
               options={{ enrich: true }}
               // contentLoaded={(data, content) => {
               //   console.log('OBJECT: ', {

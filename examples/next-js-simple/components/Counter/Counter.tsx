@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import styles from './styles.module.css'
 
+
 interface CounterProps {
   initialCount?: number
 }
@@ -16,6 +17,7 @@ function Counter({ initialCount = 99 }: CounterProps) {
   const decrement = () => {
     setCount((prevCount) => prevCount - 1)
   }
+
 
   return (
     <div className={styles.counter}>
