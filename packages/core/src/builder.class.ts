@@ -11,7 +11,6 @@ import { Animator } from './classes/animator.class';
 import { BuilderElement } from './types/element';
 import Cookies from './classes/cookies.class';
 import { omit } from './functions/omit.function';
-import { getTopLevelDomain } from './functions/get-top-level-domain';
 import { BuilderContent } from './types/content';
 import { uuid } from './functions/uuid';
 import { parse as urlParse } from './url';
@@ -118,7 +117,6 @@ function setCookie(name: string, value: string, expires?: Date) {
       (value || '') +
       expiresString +
       '; path=/' +
-      `; domain=${getTopLevelDomain(location.hostname)}` +
       (secure ? '; secure; SameSite=None' : '');
   } catch (err) {
     console.warn('Could not set cookie', err);
@@ -558,6 +556,8 @@ export interface Input {
   /** @hidden */
   imageHeight?: number;
   /** @hidden */
+  behavior?: string;
+  /** @hidden */
   imageWidth?: number;
   /** @hidden */
   mediaHeight?: number;
@@ -899,6 +899,7 @@ export class Builder {
   static actions: Action[] = [];
   static registry: { [key: string]: any[] } = {};
   static overrideHost: string | undefined;
+  static attributesCookieName = 'builder.userAttributes';
 
   /**
    * @todo `key` property on any info where if a key matches a current
@@ -907,6 +908,10 @@ export class Builder {
   static register(type: 'insertMenu', info: InsertMenuConfig): void;
   static register(type: string, info: any): void;
   static register(type: string, info: any) {
+    if (type === 'plugin') {
+      info = this.serializeIncludingFunctions(info);
+    }
+
     // TODO: all must have name and can't conflict?
     let typeList = this.registry[type];
     if (!typeList) {
@@ -1077,7 +1082,7 @@ export class Builder {
     }
   }
 
-  private static serializeComponentInfo(info: any) {
+  private static serializeIncludingFunctions(info: any) {
     const serializeFn = (fnValue: Function) => {
       const fnStr = fnValue.toString().trim();
 
@@ -1102,7 +1107,7 @@ export class Builder {
 
   private static prepareComponentSpecToSend(spec: Component): Component {
     return {
-      ...this.serializeComponentInfo(spec),
+      ...this.serializeIncludingFunctions(spec),
       class: undefined,
     };
   }
@@ -1701,6 +1706,17 @@ export class Builder {
       this.setTestsFromUrl();
       // TODO: do this on every request send?
       this.getOverridesFromQueryString();
+
+      // cookies used in personalization container script, so need to set before hydration to match script result
+      const userAttrCookie = this.getCookie(Builder.attributesCookieName);
+      if (userAttrCookie) {
+        try {
+          const attributes = JSON.parse(userAttrCookie);
+          this.setUserAttributes(attributes);
+        } catch (err) {
+          console.debug('Error parsing user attributes cookie', err);
+        }
+      }
     }
   }
 
@@ -2143,6 +2159,10 @@ export class Builder {
 
   setUserAttributes(options: object) {
     assign(Builder.overrideUserAttributes, options);
+    if (this.canTrack) {
+      this.setCookie(Builder.attributesCookieName, JSON.stringify(this.getUserAttributes()));
+    }
+
     this.userAttributesChanged.next(options);
   }
 
@@ -2311,10 +2331,7 @@ export class Builder {
     url: string,
     options?: { headers: { [header: string]: number | string | string[] | undefined }; next?: any }
   ) {
-    return getFetch()(url, {
-      next: { revalidate: 1, ...options?.next },
-      ...options,
-    } as SimplifiedFetchOptions).then(res => res.json());
+    return getFetch()(url, options as SimplifiedFetchOptions).then(res => res.json());
   }
 
   get host() {
@@ -2422,7 +2439,7 @@ export class Builder {
     }
     // TODO: merge in the attribute from query string ones
     // TODO: make this an option per component/request
-    queryParams.userAttributes = userAttributes;
+    queryParams.userAttributes = JSON.stringify(userAttributes);
 
     if (!usePastQueue && !useQueue) {
       this.priorContentQueue = queue;
@@ -2516,7 +2533,7 @@ export class Builder {
 
     const format = queryParams.format;
 
-    const requestOptions = { headers: {}, next: { revalidate: 1 } };
+    const requestOptions = { headers: {} };
     if (this.authToken) {
       requestOptions.headers = {
         ...requestOptions.headers,
